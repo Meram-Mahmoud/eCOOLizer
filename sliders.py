@@ -63,7 +63,7 @@ class Slider(QWidget):
         #----------------------------Testing---------------------------------
         # Plot the original signal
         plt.subplot(2, 1, 1)
-        plt.plot(fft_freqs, fft_values)
+        plt.plot(self.signal[0], self.signal[1])
         plt.legend()
         plt.title("Original Signal")
         plt.xlabel("Time [s]")
@@ -80,7 +80,7 @@ class Slider(QWidget):
             # print(len(positive_fft_values))
             print(f'{target_freq} Hz of magnetude {fft_values[idx]}')
             fft_values[idx] = new_magnitude*10 + fft_values[idx]   # Preserve the phase
-            print(f'{target_freq} Hz changed by {new_magnitude}. New amplitude is {fft_values[idx]}')
+            print(f'{target_freq} Hz changed by {new_magnitude*10}. New amplitude is {fft_values[idx]}')
             # print(positive_fft_values - new_positive_fft_values)
             # Reconstruct the modified signal with inverse FFT
             modified_signal = np.fft.ifft(fft_values).real
@@ -96,7 +96,7 @@ class Slider(QWidget):
         # Plot the Fourier Transform (magnitude)
         plt.subplot(2, 1, 2)
         # print(len(self.signal[0]), len(modified_signal))
-        plt.plot(fft_freqs, fft_values)
+        plt.plot(self.signal[0], modified_signal)
         plt.legend()
         plt.title("After modefing frequency")
         plt.xlabel("Time [s]")
@@ -106,7 +106,7 @@ class Slider(QWidget):
         plt.tight_layout()
         plt.show()
         #--------------------------------------------------------------
-
+        self.signal = [self.signal[0], modified_signal]
         return positive_fft_values, modified_signal
 
 # Run the application
