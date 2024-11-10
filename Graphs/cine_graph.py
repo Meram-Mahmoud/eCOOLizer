@@ -23,7 +23,7 @@ class CineGraph(GraphBase):
       
 
     def set_signal(self, signal: Signal):
-        # sd.stop()
+        sd.stop()
         self.signal = signal
         self.current_frame = 0  
         self.plot_widget.clear() 
@@ -33,36 +33,9 @@ class CineGraph(GraphBase):
         self.display_signal(time_data, amplitude_data, pen='b') 
         self.play()
 
-    # def display_signal(self, time_data, amplitude_data, color="b"):
-    #     if self.is_waveform_mode: 
-    #         self.plot_waveform(time_data, amplitude_data, color=color)
-    #     else:
-    #         frequencies, thresholds = self.signal.get_audiogram_data(self.current_frame)
-    #         if frequencies is not None:
-    #             self.plot_audiogram(frequencies, thresholds)
-
     def display_signal(self, time_data, amplitude_data, pen='b'):
         self.plot_graph(time_data, amplitude_data, pen=pen)
-
-    # def update_plot(self):
-    #     if self.signal is None:
-    #         return
-
-    #     if self.is_waveform_mode: 
-    #         time_data, amplitude_data = self.signal.get_waveform_data(end_frame=self.current_frame)
-    #         self.plot_waveform(time_data, amplitude_data)
-    #     else:
-    #         frequencies, thresholds = self.signal.get_audiogram_data(self.current_frame)
-    #         if frequencies is not None:
-    #             self.plot_audiogram(frequencies, thresholds)
-
-    #     if self.is_playing:
-    #         self.current_frame += int(self.signal.sample_rate * 0.05)
-    #         if self.current_frame >= len(self.signal.data):
-    #             self.timer.stop()
-    #             self.is_playing = False
-
-
+        
     def update_plot(self):
         if self.signal is None:
             return
@@ -81,12 +54,12 @@ class CineGraph(GraphBase):
         if not self.is_playing:
             self.timer.start(self.playSpeed)
             self.is_playing = True
-            # sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
+            sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
 
     def pause(self):
         self.timer.stop()
         self.is_playing = False
-        # sd.stop()  
+        sd.stop()  
         self.paused_frame = self.current_frame  
 
     def reset(self):
@@ -95,7 +68,7 @@ class CineGraph(GraphBase):
 
     def set_play_speed(self, value):
         self.playSpeed = max(50, min(500, 500 - value))
-        # self.playSpeed=value
+        self.playSpeed=value
         if self.is_playing:
             self.timer.start(self.playSpeed) 
 
