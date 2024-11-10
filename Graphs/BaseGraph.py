@@ -31,17 +31,13 @@ class GraphBase(QWidget):
     def layoutSet(self):
         self.layout.addWidget(self.plot_widget)
 
-    def plot_waveform(self, time_data, amplitude_data, color='b'):
+    def plot_graph(self, time_data, amplitude_data, **kwargs):
+        pen = kwargs.get('pen', 'b')  
+        if isinstance(pen, str):
+            pen = pg.mkPen(pen)
         self.plot_widget.clear()
-        self.plot_widget.plot(time_data, amplitude_data, pen=color)
-        # self.limit_x_axis()
+        self.plot_widget.plot(time_data, amplitude_data, **kwargs)
 
-    def plot_audiogram(self, frequencies, thresholds):
-        self.plot_widget.clear()
-        self.plot_widget.setLabel('left', 'Threshold (dB)')
-        self.plot_widget.setLabel('bottom', 'Frequency (Hz)')
-        self.plot_widget.plot(frequencies, thresholds, pen='r', symbol='o', symbolBrush='r')
-        # self.limit_x_axis()
 
     def clear(self):
         self.plot_widget.clear()
