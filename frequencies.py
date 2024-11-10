@@ -11,14 +11,21 @@ def fourier(signal):
     positive_freqs = fft_freqs[:len(fft_freqs) // 2]
     positive_fft_values = np.abs(fft_values[:len(fft_values) // 2])
     
+    print(len(fft_values), len(time))
+    
     return positive_freqs, positive_fft_values
+    # return fft_freqs, fft_values
 
 
 # Synthetic signal
 time = np.linspace(0, 10, 1000)
 amp = np.zeros_like(time)
 for i in range(10):
-    amp += i/100*np.sin(2 * np.pi * i * time)
+    if i % 2 == 0:
+        amp += 1/(i+1)*np.sin(2 * np.pi * i * time)
+        # pass
+    else:
+        amp += 1/(i+1)*np.cos(2 * np.pi * i * time)
 
 freq, ampl = fourier(amp)
 
