@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, Q
     QPushButton, QHBoxLayout
 from pyqtgraph import PlotWidget
 
+from mainStyle import mainStyle,logoStyle,audioNameStyle
+
 
 class eCOOLizer(QMainWindow):
     def __init__(self):
@@ -38,7 +40,7 @@ class eCOOLizer(QMainWindow):
         self.centerWindow()
 
     def createUIElements(self):
-        self.eCOOLizerLogo = QLabel("eCOOLizer|")
+        self.eCOOLizerLogo = QLabel("ECOOLIZER |")
         self.audioLoadedName = QLabel("Need AudioName.mp3")
         self.uploadButton = QPushButton("Upload")
 
@@ -80,18 +82,28 @@ class eCOOLizer(QMainWindow):
     def connectUI(self):
         print("UI Connected")
     def stylingUI(self):
+        self.setStyleSheet(mainStyle)
+        self.eCOOLizerLogo.setStyleSheet(logoStyle)
+        self.audioLoadedName.setStyleSheet(audioNameStyle)
+        self.audioLoadedName.setMargin(5)
         print("UI is Styled")
     def makeLayout(self):
         topBar = QHBoxLayout()
         topBar.addWidget(self.eCOOLizerLogo)
-        topBar.addWidget(self.audioLoadedName)
+        topBar.addWidget(self.audioLoadedName,30)
         topBar.addWidget(self.uploadButton)
+        topBar.addStretch()
 
         workspace = QVBoxLayout()
 
         graphsLayout = QVBoxLayout()
-        graphsLayout.addWidget(self.inputGraph)
-        graphsLayout.addWidget(self.outputGraph)
+
+        inputOutputgraphsLayout = QHBoxLayout()
+        inputOutputgraphsLayout.addWidget(self.inputGraph)
+        inputOutputgraphsLayout.addSpacing(20)
+        inputOutputgraphsLayout.addWidget(self.outputGraph)
+
+        graphsLayout.addLayout(inputOutputgraphsLayout)
         graphsLayout.addWidget(self.fourierGraph)
 
         modesLayout = QHBoxLayout()
