@@ -19,22 +19,22 @@ class CineGraph(GraphBase):
         self.playSpeed = 100  
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.linked_graph = None 
         self.is_playing = False
+        self.linked_graph = None
 
         self.spectrogram_visible = False
         self.splitter = QSplitter(Qt.Horizontal)
         self.spectrogram_display = SpectrogramDisplay(self.splitter)
 
-        self.splitter.addWidget(self)  # Main signal display (your signal graph)
-        self.splitter.addWidget(self.spectrogram_display)  # Spectrogram widget, initially hidden
+        self.splitter.addWidget(self) 
+        self.splitter.addWidget(self.spectrogram_display) 
         self.spectrogram_display.setVisible(False)
 
         self.splitter.setStretchFactor(0, 3) 
       
 
     def set_signal(self, signal: Signal):
-        sd.stop()
+        self.pause()
         self.signal = signal
         self.current_frame = 0  
         self.clear() 
@@ -73,9 +73,7 @@ class CineGraph(GraphBase):
         time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
         self.plot_graph(time_data, amplitude_data,pen='b')
 
-        if self.linked_graph:
-            self.linked_graph.plot_graph(time_data, amplitude_data, pen='b')
-
+        
         if self.is_playing:
             self.current_frame += int(self.signal.sample_rate * 0.05)
             if self.current_frame >= len(self.signal.data):
@@ -85,23 +83,26 @@ class CineGraph(GraphBase):
 
     def play(self):
         if not self.is_playing:
+            sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
             self.timer.start(self.playSpeed)
             self.is_playing = True
-            sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
 
     def pause(self):
-        self.timer.stop()
-        self.is_playing = False
-        sd.stop()  
-        self.paused_frame = self.current_frame  
+        if self.is_playing:
+            sd.stop()  
+            self.timer.stop() 
+            self.is_playing = False  
 
     def reset(self):
+        sd.stop()
         self.current_frame = 0
         self.update_plot()
+        sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
+       
 
     def set_play_speed(self, value):
         self.playSpeed = max(50, min(500, 500 - value))
-        self.playSpeed=value
+        # self.playSpeed=value
         if self.is_playing:
             self.timer.start(self.playSpeed) 
 
@@ -109,7 +110,7 @@ class CineGraph(GraphBase):
         self.plot_widget.setXLink(other.plot_widget)
         self.plot_widget.setYLink(other.plot_widget)
         self.linked_graph = other
-        self.current_frame = other.current_frame
+        other.linked_graph = self
         other.current_frame = self.current_frame
 
 
@@ -125,21 +126,19 @@ if __name__ == "__main__":
     main_window.setCentralWidget(central_widget)
     layout = QVBoxLayout(central_widget)
 
-    # Create CineGraph instances and link them
     cine_graph1 = CineGraph("Input Signal")
     cine_graph2 = CineGraph("Output Signal")
     cine_graph1.link_with(cine_graph2)
 
-    # Add CineGraph widgets to layout
     layout.addWidget(cine_graph1.splitter)
     layout.addWidget(cine_graph2.splitter)
 
-    # Load Signal Button
     def load_signal():
         file_path, _ = QFileDialog.getOpenFileName(main_window, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
         if file_path:
             signal = Signal()
             signal.load_signal(file_path)
+
             cine_graph1.set_signal(signal)
             cine_graph2.set_signal(signal)
 
