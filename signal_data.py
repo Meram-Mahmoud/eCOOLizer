@@ -1,5 +1,6 @@
 import numpy as np
 import soundfile as sf
+#from scipy.signal import spectrogram
 
 class Signal:
     def __init__(self, file_path=None):
@@ -27,11 +28,9 @@ class Signal:
         return time_axis, self.data[:end_frame]
 
     def get_fft_data(self, end_frame=None):
-        """Compute FFT of the entire signal if `end_frame` is None."""
         if self.data is None:
             raise ValueError("Signal data not loaded.")
 
-        # Use full length if no specific end_frame is provided
         if end_frame is None or end_frame > len(self.data):
             end_frame = len(self.data)
 
@@ -40,7 +39,6 @@ class Signal:
         return frequencies, magnitudes
     
     def calculate_audiogram(self, frequencies, magnitudes):
-        """Calculate thresholds for specific audiogram frequency bins."""
         freq_bins = np.array([250, 500, 1000, 2000, 4000, 8000])
         thresholds = []
         for freq in freq_bins:
@@ -49,6 +47,30 @@ class Signal:
             threshold = 120 - min(120, 20 * np.log10(np.abs(magnitude) + 1e-3))
             thresholds.append(threshold)
         return freq_bins, thresholds
+    
+    
+    def calculate_spectrogram(self, window_size=1024, overlap=512):
+        if self.data is None:
+            raise ValueError("Signal data not loaded.")
+
+        step = window_size - overlap
+        spectrogram = []
+        
+        for start in range(0, len(self.data) - window_size + 1, step):
+            segment = self.data[start:start + window_size]
+            windowed_segment = segment * np.hanning(window_size) 
+            spectrum = np.fft.rfft(windowed_segment)
+            spectrogram.append(np.abs(spectrum))
+
+        spectrogram = np.array(spectrogram).T 
+        freqs = np.fft.rfftfreq(window_size, 1 / self.sample_rate)
+        times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
+        
+        # freqs, times, spectrogram = spectrogram(self.data, fs=self.sample_rate, 
+        #                                          window='hann', nperseg=window_size, 
+        #                                          noverlap=overlap, scaling='spectrum')
+
+        return freqs, times, spectrogram
 
     def get_time_data(self):
         if self.data is None:
