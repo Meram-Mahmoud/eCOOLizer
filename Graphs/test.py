@@ -23,38 +23,48 @@ class MainWindow(QMainWindow):
         self.cine_graph1 = CineGraph("Input Signal")
         self.cine_graph2 = CineGraph("Output Signal")
 
+        # Link graphs here after they are created
         self.cine_graph1.link_with(self.cine_graph2)
 
+        # Add the graphs to the layout
+        layout.addWidget(self.cine_graph1.splitter)
+        layout.addWidget(self.cine_graph2.splitter)
+
+        # Create Fourier graph if needed
         self.fourier_graph = FourierTransformGraph("Fourier Transform")
+        layout.addWidget(self.fourier_graph)
 
-        layout.addWidget(self.cine_graph1.splitter)  
-        layout.addWidget(self.cine_graph2.splitter) 
-        layout.addWidget(self.fourier_graph)      
-
+        # Load signal button
         self.load_button = QPushButton("Load Signal")
         self.load_button.clicked.connect(self.load_signal)
         layout.addWidget(self.load_button)
 
+        # Spectrogram toggle button
         self.toggle_spectrogram_button = QPushButton("Toggle Spectrogram")
         self.toggle_spectrogram_button.clicked.connect(lambda: (self.cine_graph1.toggle_spectrogram(), self.cine_graph2.toggle_spectrogram()))
         layout.addWidget(self.toggle_spectrogram_button)
 
+        # Audiogram toggle button
         self.toggle_audiogram_button = QPushButton("Toggle Audiogram Mode")
         self.toggle_audiogram_button.clicked.connect(self.fourier_graph.toggle_audiogram_mode)
         layout.addWidget(self.toggle_audiogram_button)
 
+        # Play button
         play_button = QPushButton("Play")
         play_button.clicked.connect(lambda: (self.cine_graph1.play(), self.cine_graph2.play()))
         layout.addWidget(play_button)
 
+        # Pause button
         pause_button = QPushButton("Pause")
         pause_button.clicked.connect(lambda: (self.cine_graph1.pause(), self.cine_graph2.pause()))
         layout.addWidget(pause_button)
 
+        # Reset button
         reset_button = QPushButton("Reset")
         reset_button.clicked.connect(lambda: (self.cine_graph1.reset(), self.cine_graph2.reset()))
         layout.addWidget(reset_button)
 
+        # Playback speed slider
         speed_slider = QSlider(Qt.Horizontal)
         speed_slider.setMinimum(50)
         speed_slider.setMaximum(500)
@@ -68,13 +78,12 @@ class MainWindow(QMainWindow):
             signal = Signal()
             signal.load_signal(file_path)
 
+            # Set the same signal to both graphs
             self.cine_graph1.set_signal(signal)
             self.cine_graph2.set_signal(signal)
-            self.fourier_graph.set_signal(signal)
 
-    def toggle_spectrogram(self):
-        self.cine_graph1.toggle_spectrogram()
-        self.cine_graph2.toggle_spectrogram()
+            # Set the signal to the Fourier graph as well if required
+            self.fourier_graph.set_signal(signal)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
