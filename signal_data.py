@@ -1,5 +1,6 @@
 import numpy as np
 import soundfile as sf
+#from scipy.signal import spectrogram
 
 class Signal:
     def __init__(self, file_path=None):
@@ -65,6 +66,10 @@ class Signal:
         freqs = np.fft.rfftfreq(window_size, 1 / self.sample_rate)
         times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
         
+        # freqs, times, spectrogram = spectrogram(self.data, fs=self.sample_rate, 
+        #                                          window='hann', nperseg=window_size, 
+        #                                          noverlap=overlap, scaling='spectrum')
+
         return freqs, times, spectrogram
 
     def get_time_data(self):
