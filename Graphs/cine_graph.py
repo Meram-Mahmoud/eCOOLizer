@@ -102,7 +102,7 @@ class CineGraph(GraphBase):
 
     def set_play_speed(self, value):
         self.playSpeed = max(50, min(500, 500 - value))
-        self.playSpeed=value
+        # self.playSpeed=value
         if self.is_playing:
             self.timer.start(self.playSpeed) 
 
