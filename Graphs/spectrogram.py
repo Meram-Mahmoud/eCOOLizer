@@ -1,38 +1,38 @@
-import pyqtgraph as pg
-from BaseGraph import GraphBase
 import numpy as np
+import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
+class SpectrogramDisplay(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
+        self.figure, self.ax = plt.subplots(figsize=(6, 4))  
+        self.canvas = FigureCanvas(self.figure)
 
-class SpectrogramDisplay(GraphBase):
-    def __init__(self):
-        self.spectrogram_plot = GraphBase("Spectrogram")
-        self.spectrogram_image = pg.ImageItem()
-        self.spectrogram_plot.plot_widget.addItem(self.spectrogram_image)
-        self.spectrogram_plot.hide()
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.canvas)
 
-        colors = [(0, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 0)]
-        positions = [0.0, 0.25, 0.5, 0.75, 1.0]
-        colormap = pg.ColorMap(positions, colors)
-        self.spectrogram_image.setLookupTable(colormap.getLookupTable())
+        self.color_map = plt.cm.get_cmap("viridis") 
 
-    def display_spectrogram(self, signal, window_size=1024, overlap=512):
+    def display_spectrogram(self, signal):
         if not signal:
             return
-        freqs, times, spectrogram_data = signal.calculate_spectrogram(window_size, overlap)
+
+        freqs, times, spectrogram_data = signal.calculate_spectrogram(window_size=1024)
+
         spectrogram_db = 20 * np.log10(spectrogram_data + 1e-6)
-        self.spectrogram_image.setImage(spectrogram_db, autoLevels=True)
 
-        transform = pg.QtGui.QTransform()
-        transform.scale(times[-1] / spectrogram_db.shape[1], freqs[-1] / spectrogram_db.shape[0])
-        self.spectrogram_image.setTransform(transform)
-        self.spectrogram_plot.plot_widget.setLabel('left', 'Frequency (Hz)')
-        self.spectrogram_plot.plot_widget.setLabel('bottom', 'Time (s)')
+        self.ax.clear()
+        self.spectrogram_image = self.ax.imshow(spectrogram_db, aspect='auto', cmap=self.color_map,
+                                                extent=[times[0], times[-1], freqs[0], freqs[-1]], origin='lower')
+        self.ax.set_xlabel("Time (s)")
+        self.ax.set_ylabel("Frequency (Hz)")
 
-    def toggle_visibility(self, splitter, is_visible):
+        self.canvas.draw()
+
+    def toggle_visibility(self, is_visible):
         if is_visible:
-            splitter.addWidget(self.spectrogram_plot)
-            self.spectrogram_plot.show()
+            self.show()
         else:
-            splitter.widget(1).setParent(None)
-            self.spectrogram_plot.hide()
+            self.hide()

@@ -19,24 +19,25 @@ class CineGraph(GraphBase):
         self.playSpeed = 100  
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
+        self.linked_graph = None 
         self.is_playing = False
 
         self.spectrogram_visible = False
-        self.spectrogram_display = SpectrogramDisplay()
-
         self.splitter = QSplitter(Qt.Horizontal)
-        self.splitter.addWidget(self)
-        self.splitter.addWidget(self.spectrogram_display.spectrogram_plot)
+        self.spectrogram_display = SpectrogramDisplay(self.splitter)
 
-        self.splitter.setStretchFactor(0,3) 
-        self.splitter.setStretchFactor(1, 1)  
+        self.splitter.addWidget(self)  # Main signal display (your signal graph)
+        self.splitter.addWidget(self.spectrogram_display)  # Spectrogram widget, initially hidden
+        self.spectrogram_display.setVisible(False)
+
+        self.splitter.setStretchFactor(0, 3) 
       
 
     def set_signal(self, signal: Signal):
         sd.stop()
         self.signal = signal
         self.current_frame = 0  
-        self.plot_widget.clear() 
+        self.clear() 
 
         time_data, amplitude_data = signal.get_data()
         self.plot_widget.setTitle(self.title)
@@ -52,9 +53,17 @@ class CineGraph(GraphBase):
 
     def toggle_spectrogram(self):
         self.spectrogram_visible = not self.spectrogram_visible
-        self.spectrogram_display.toggle_visibility(self.splitter, self.spectrogram_visible)
+        self.spectrogram_display.toggle_visibility(self.spectrogram_visible)
+
         if self.spectrogram_visible:
             self.spectrogram_display.display_spectrogram(self.signal)
+            self.spectrogram_display.setMinimumSize(100, 100) 
+            self.splitter.setSizes([max(200, self.width() // 2), max(200, self.width() // 2)])
+        else:
+            self.splitter.setSizes([max(200, self.width()), 0])
+        
+        self.spectrogram_display.updateGeometry()
+        self.splitter.updateGeometry()
 
         
     def update_plot(self):
@@ -63,6 +72,9 @@ class CineGraph(GraphBase):
 
         time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
         self.plot_graph(time_data, amplitude_data,pen='b')
+
+        if self.linked_graph:
+            self.linked_graph.plot_graph(time_data, amplitude_data, pen='b')
 
         if self.is_playing:
             self.current_frame += int(self.signal.sample_rate * 0.05)
@@ -97,6 +109,8 @@ class CineGraph(GraphBase):
         self.plot_widget.setXLink(other.plot_widget)
         self.plot_widget.setYLink(other.plot_widget)
         self.linked_graph = other
+        self.current_frame = other.current_frame
+        other.current_frame = self.current_frame
 
 
 #test 
