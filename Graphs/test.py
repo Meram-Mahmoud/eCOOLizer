@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
 
         # Link graphs here after they are created
         self.cine_graph1.link_with(self.cine_graph2)
+        # self.cine_graph2.link_with(self.cine_graph1)
 
         # Add the graphs to the layout
         layout.addWidget(self.cine_graph1.splitter)
@@ -44,6 +45,8 @@ class MainWindow(QMainWindow):
         self.toggle_audiogram_button.clicked.connect(self.fourier_graph.toggle_audiogram_mode)
         layout.addWidget(self.toggle_audiogram_button)
 
+
+        # self.cine_graph1.setXLink(self.cine_graph2)
         play_button = QPushButton("Play")
         play_button.clicked.connect(lambda: (self.cine_graph1.play(), self.cine_graph2.play()))
         layout.addWidget(play_button)

@@ -14,12 +14,13 @@ class SpectrogramDisplay(QWidget):
         layout.addWidget(self.canvas)
 
         self.color_map = plt.cm.get_cmap("viridis") 
+        self.colorbar = None
 
     def display_spectrogram(self, signal):
         if not signal:
             return
 
-        freqs, times, spectrogram_data = signal.calculate_spectrogram(window_size=1024)
+        freqs, times, spectrogram_data = signal.calculate_spectrogram(chunks=512)
 
         spectrogram_db = 20 * np.log10(spectrogram_data + 1e-6)
 
@@ -28,6 +29,12 @@ class SpectrogramDisplay(QWidget):
                                                 extent=[times[0], times[-1], freqs[0], freqs[-1]], origin='lower')
         self.ax.set_xlabel("Time (s)")
         self.ax.set_ylabel("Frequency (Hz)")
+
+        if self.colorbar is None: 
+            self.colorbar = self.figure.colorbar(self.spectrogram_image, ax=self.ax, orientation='vertical')
+            self.colorbar.set_label("Intensity (dB)")
+        else:  
+            self.colorbar.update_normal(self.spectrogram_image)
 
         self.canvas.draw()
 

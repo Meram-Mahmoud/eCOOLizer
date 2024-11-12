@@ -34,11 +34,9 @@ class CineGraph(GraphBase):
       
 
     def set_signal(self, signal: Signal):
-        self.pause()
+        self.clear()
         self.signal = signal
         self.current_frame = 0  
-        self.clear() 
-
         time_data, amplitude_data = signal.get_data()
         self.plot_widget.setTitle(self.title)
         self.display_signal(time_data, amplitude_data, pen='b') 
@@ -71,34 +69,95 @@ class CineGraph(GraphBase):
             return
 
         time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
-        self.plot_graph(time_data, amplitude_data,pen='b')
+        self.plot_graph(time_data, amplitude_data, pen='b')
 
-        
+        window_duration = 1  
+        end_time = time_data[-1] if len(time_data) > 0 else 0
+        start_time = max(0, end_time - window_duration)
+
+        self.plot_widget.setXRange(start_time, end_time)
+
         if self.is_playing:
             self.current_frame += int(self.signal.sample_rate * 0.05)
             if self.current_frame >= len(self.signal.data):
                 self.timer.stop()
                 self.is_playing = False
 
+    
 
     def play(self):
         if not self.is_playing:
-            sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
+            # sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
             self.timer.start(self.playSpeed)
             self.is_playing = True
 
     def pause(self):
         if self.is_playing:
-            sd.stop()  
+            # sd.stop()  
             self.timer.stop() 
             self.is_playing = False  
 
     def reset(self):
-        sd.stop()
+        # sd.stop()
         self.current_frame = 0
         self.update_plot()
-        sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
+        # sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
        
+     # def update_plot(self):
+    #     if self.signal is None or not self.is_playing:
+    #         return
+
+    #     elapsed_seconds = self.total_elapsed_time
+    #     if self.elapsed_timer.isValid():
+    #         elapsed_seconds += self.elapsed_timer.elapsed() / 1000.0 
+
+    #     target_frame = int(elapsed_seconds * self.signal.sample_rate)
+
+    #     if target_frame > len(self.signal.data):
+    #         self.timer.stop()
+    #         self.is_playing = False
+    #         return
+
+    #     time_data, amplitude_data = self.signal.get_data(end_frame=target_frame)
+    #     self.plot_graph(time_data, amplitude_data, pen='b')
+    #     self.current_frame = target_frame  
+
+    # def play(self):
+    #     if not self.is_playing:
+    #         if not self.elapsed_timer.isValid():  
+    #             self.elapsed_timer.start()
+    #         else:
+    #             self.elapsed_timer.restart() 
+
+    #         sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
+            
+    #         self.timer.start(self.playSpeed)
+    #         self.is_playing = True
+
+    # def pause(self):
+    #     if self.is_playing:
+    #         self.total_elapsed_time += self.elapsed_timer.elapsed() / 1000.0  
+    #         self.elapsed_timer.invalidate() 
+            
+    #         sd.stop()
+    #         self.timer.stop()
+    #         self.is_playing = False
+
+
+    # def reset(self):
+    #     sd.stop()
+    #     self.timer.stop()
+    #     self.is_playing = False
+
+    #     self.current_frame = 0
+    #     self.total_elapsed_time = 0
+    #     self.elapsed_timer.invalidate() 
+
+    #     self.clear()  
+    #     self.update_plot()
+
+    #     self.play()
+
 
     def set_play_speed(self, value):
         self.playSpeed = max(50, min(500, 500 - value))
@@ -112,6 +171,7 @@ class CineGraph(GraphBase):
         self.linked_graph = other
         other.linked_graph = self
         other.current_frame = self.current_frame
+        self.current_frame=other.current_frame
 
 
 #test 

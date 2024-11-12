@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import soundfile as sf
 #from scipy.signal import spectrogram
 
@@ -17,13 +16,6 @@ class Signal:
 
         if len(self.data) == 0:
             raise ValueError("no data")
-        
-    def load_signal_from_csv(self, file_path):
-        df = pd.read_csv(file_path)
-    
-        # Extract time and data columns
-        self.time = df['Time'].values  # Extract the time (x-axis)
-        self.data = df['Amplitude'].values
 
     def get_data(self, end_frame=None):
         if self.data is None:
@@ -57,23 +49,27 @@ class Signal:
         return freq_bins, thresholds
     
     
-    def calculate_spectrogram(self, window_size=1024, overlap=512):
+    def calculate_spectrogram(self, chunks=512, overlap=256):
         if self.data is None:
             raise ValueError("Signal data not loaded.")
 
-        step = window_size - overlap
+        step = chunks - overlap
         spectrogram = []
-        
-        for start in range(0, len(self.data) - window_size + 1, step):
-            segment = self.data[start:start + window_size]
-            windowed_segment = segment * np.hanning(window_size) 
+
+        for start in range(0, len(self.data) - chunks + 1, step):
+            segment = self.data[start:start + chunks]
+            windowed_segment = segment * np.hanning(chunks)
             spectrum = np.fft.rfft(windowed_segment)
             spectrogram.append(np.abs(spectrum))
 
-        spectrogram = np.array(spectrogram).T 
-        freqs = np.fft.rfftfreq(window_size, 1 / self.sample_rate)
+        spectrogram = np.array(spectrogram).T
+        freqs = np.fft.rfftfreq(chunks, 1 / self.sample_rate)
         times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
-        
+
+        return freqs, times, spectrogram
+
+
+            
         # freqs, times, spectrogram = spectrogram(self.data, fs=self.sample_rate, 
         #                                          window='hann', nperseg=window_size, 
         #                                          noverlap=overlap, scaling='spectrum')
