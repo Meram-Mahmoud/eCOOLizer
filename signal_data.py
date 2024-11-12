@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import soundfile as sf
 #from scipy.signal import spectrogram
 
@@ -16,6 +17,13 @@ class Signal:
 
         if len(self.data) == 0:
             raise ValueError("no data")
+        
+    def load_signal_from_csv(self, file_path):
+        df = pd.read_csv(file_path)
+    
+        # Extract time and data columns
+        self.time = df['Time'].values  # Extract the time (x-axis)
+        self.data = df['Amplitude'].values
 
     def get_data(self, end_frame=None):
         if self.data is None:
