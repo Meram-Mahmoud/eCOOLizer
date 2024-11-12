@@ -22,9 +22,9 @@ class ArrhythmiaAmplifierApp(QWidget):
         self.manipulated_signal = self.ecg_signal
         self.filtered_components = {
             'Normal': None,
-            'Vfib': None,
+            'Aflutter': None,
             'Afib': None,
-            'Tachycardia': None
+            'Bradycardia': None
         }
 
         main_layout = QVBoxLayout()
@@ -39,7 +39,7 @@ class ArrhythmiaAmplifierApp(QWidget):
         # Sliders for different arrhythmia components
         self.sliders = {}
         self.slider_labels = {}
-        slider_names = ['Normal', 'Vfib', 'Afib', 'Tachycardia']
+        slider_names = ['Normal', 'Aflutter', 'Afib', 'Bradycardia']
         for name in slider_names:
             slider_label = QLabel(f"{name} Amplification: 1.0")
             slider = QSlider(Qt.Horizontal)
@@ -97,15 +97,15 @@ class ArrhythmiaAmplifierApp(QWidget):
             self.fft_data = fft(self.ecg_signal.data)
 
             # Bandpass filter ranges for different arrhythmias
-            self.filtered_components['Normal'] = self.bandpass_filter(self.ecg_signal.data, 20, 40)
-            self.filtered_components['Vfib'] = self.bandpass_filter(self.ecg_signal.data, 5, 20)
+            self.filtered_components['Normal'] = self.bandpass_filter(self.ecg_signal.data, 0.5, 20)
+            self.filtered_components['Aflutter'] = self.bandpass_filter(self.ecg_signal.data, 5, 20)
             self.filtered_components['Afib'] = self.bandpass_filter(self.ecg_signal.data, 0.5, 5)
-            self.filtered_components['Tachycardia'] = self.bandpass_filter(self.ecg_signal.data, 3, 10)
+            self.filtered_components['Bradycardia'] = self.bandpass_filter(self.ecg_signal.data, 3, 10)
             
             # Identify Vfib peaks to add markers
             # self.vfib_peaks = self.detect_vfib_peaks(self.filtered_components['Vfib'])
             # self.afib_peaks = self.detect_vfib_peaks(self.filtered_components['Afib'])
-            self.tfib_peaks = self.detect_vfib_peaks(self.filtered_components['Trachycardia'])
+            self.tfib_peaks = self.detect_vfib_peaks(self.filtered_components['Bradycardia'])
 
             # Add markers for Vfib regions
             for vfib_time in self.vfib_peaks:
@@ -139,7 +139,7 @@ class ArrhythmiaAmplifierApp(QWidget):
 
          # Apply amplification based on frequency band
         amplified_fft = self.fft_data.copy()
-        for name, freq_range in zip(['Normal','Vfib', 'Afib', 'Tachycardia'], [(20,40),(5, 20), (0.5, 5), (20, 40)]):
+        for name, freq_range in zip(['Normal','Aflutter', 'Afib', 'Bradycardia'], [(0.5,20),(5, 20), (0.5, 5), (20, 40)]):
             amp_factor = self.sliders[name].value() / 10.0
             self.slider_labels[name].setText(f"{name} Amplification: {amp_factor:.1f}")
 
