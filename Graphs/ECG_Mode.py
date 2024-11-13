@@ -102,7 +102,7 @@ class ArrhythmiaAmplifierApp(QWidget):
 
         
     def bandpass_filter(self, signal, lowcut, highcut, order=5):
-        """Apply a band-pass filter to isolate frequency components for arrhythmia types."""
+        
         nyquist = 0.5 * self.fs
         low = lowcut / nyquist
         high = highcut / nyquist
@@ -111,13 +111,11 @@ class ArrhythmiaAmplifierApp(QWidget):
     
 
     def update_amplification(self):
-        """Apply amplification based on slider values and update the Output Signal plot."""
+
         if self.ecg_signal.data is None or self.ecg_signal.time is None:
             print("No signal loaded.")
             return
-        
 
-         # Apply amplification based on frequency band
         amplified_fft = self.fft_data.copy()
         for name, freq_range in zip(['Normal','Aflutter', 'Afib', 'Bradycardia'], [(0.5,20),(59, 61), (59, 61), (70, 96)]):
             amp_factor = self.sliders[name].value() / 10.0
@@ -126,7 +124,6 @@ class ArrhythmiaAmplifierApp(QWidget):
             band_indices = (np.abs(self.fft_freq) >= freq_range[0]) & (np.abs(self.fft_freq) <= freq_range[1])
             amplified_fft[band_indices] *= amp_factor
 
-        # Inverse FFT to return to time domain
         self.manipulated_signal.data = np.real(ifft(amplified_fft))
         self.manipulated_signal.time = self.ecg_signal.time
 
