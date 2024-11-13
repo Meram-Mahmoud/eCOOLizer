@@ -4,16 +4,24 @@ from PyQt5.QtCore import Qt
 import numpy as np
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
+import cmath
+import soundfile as sf
+from signal_data import Signal
+
 
 class Slider(QWidget):
     def __init__(self, min_value=-5, max_value=5, initial_value=0, audio_file=None):
         super().__init__()
 
-        self.signal = audio_file
-        print(audio_file)
-        # self.signal = self.load_audio(audio_file)
-        # self.export_modified_audio("Equalizer/sounds/animals_modified.wav")
+        self.signal = audio_file # signal will be modified before passing to the class
+        # print(audio_file)
+        # self.signal = None
+        # self.sample_rate = None
+        # self.path = audio_file
+        # self.load_signal()
 
+        # time_data, amplitude_data = Signal.get_data()
+        # self.export_modified_audio("Equalizer/sounds/animals_modified.wav")
 
         # Create a vertical layout for each slider and label
         layout = QVBoxLayout()
@@ -28,7 +36,7 @@ class Slider(QWidget):
 
         # Connect the slider's value change event
         # self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude(int(self.label.text()[0]), value))
-        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude((2000), value))
+        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude((500, 2000), value))
 
         # Create a label to show the slider value
         self.label = QLabel(f"Value: {initial_value}")
@@ -49,11 +57,22 @@ class Slider(QWidget):
     #     signal = [np.linspace(0, len(samples) / audio.frame_rate, num=len(samples)), samples]
     #     return signal
 
+    # def load_signal(self):
+    #     self.signal, self.sample_rate = sf.read(self.path)
+        
+    #     if self.signal.ndim > 1:
+    #         self.signal = self.signal[:, 0]
+
+    #     print(self.signal)
+
+    #     if len(self.signal) == 0:
+    #         raise ValueError("no data")
+
     def update_label(self, value):
         self.label.setText(value)
 
     # get signal frequencies
-    def fourier(self, signal):
+    def fft(self, signal):
         # Compute the Fourier Transform
         fft_values = np.fft.fft(signal)
         fft_freqs = np.fft.fftfreq(len(fft_values), 1/6000)
@@ -63,6 +82,26 @@ class Slider(QWidget):
         positive_fft_values = np.abs(fft_values[:len(fft_values) // 2])
         
         return positive_freqs, positive_fft_values, fft_freqs, fft_values
+    
+    def ifft(self, signal):
+        pass
+
+    # def fft(self, signal):
+    #     n = len(signal)
+    #     if n == 1:
+    #         return signal
+
+    #     # Split the signal into even and odd components
+    #     even = self.fft(signal[0::2])
+    #     odd = self.fft(signal[1::2])
+
+    #     combined = [0] * n
+    #     for k in range(n // 2):
+    #         exp_factor = cmath.exp(-2j * cmath.pi * k / n) * odd[k]
+    #         combined[k] = even[k] + exp_factor
+    #         combined[k + n // 2] = even[k] - exp_factor
+
+    #     return combined
 
     # Access and modify the magnitude of a specific frequency
     def modify_frequency_magnitude(self, target_freq, new_magnitude):
@@ -73,37 +112,26 @@ class Slider(QWidget):
         new_magnitude: slider value
         """
         # Perform FFT
-        positive_freqs, positive_fft_values, fft_freqs, fft_values = self.fourier(self.signal[1])
+        positive_freqs, positive_fft_values, fft_freqs, fft_values = self.fft(self.signal[1])
 
-        # #----------------------------Testing---------------------------------
-        # # Plot the original signal
-        # plt.subplot(2, 1, 1)
-        # plt.plot(self.signal[0], self.signal[1])
-        # plt.legend()
-        # plt.title("Original Signal")
-        # plt.xlabel("Time [s]")
-        # plt.ylabel("Amplitude")
-        # plt.xlim(0, 10)
-        # #--------------------------------------------------------------------
+        # # Find the index of the target frequency
+        # idx = np.where(np.isclose(positive_freqs, target_freq))[0]
 
-        # Find the index of the target frequency
-        idx = np.where(np.isclose(positive_freqs, target_freq))[0]
+        # if idx.size > 0:
+        #     # Set the magnitude at the target frequency
+        #     idx = idx[0]
+        #     # print(len(positive_fft_values))
+        #     print(f'{target_freq} Hz of magnetude {fft_values[idx]}')
+        #     fft_values[idx] = new_magnitude*10 + fft_values[idx]   # Preserve the phase
+        #     print(f'{target_freq} Hz changed by {new_magnitude*10}. New amplitude is {fft_values[idx]}')
+        #     # print(positive_fft_values - new_positive_fft_values)
+        #     # Reconstruct the modified signal with inverse FFT
+        #     modified_signal = np.fft.ifft(fft_values).real
+        #     # self.export_modified_audio("Equalizer/sounds/animals_modified2.wav")
 
-        if idx.size > 0:
-            # Set the magnitude at the target frequency
-            idx = idx[0]
-            # print(len(positive_fft_values))
-            print(f'{target_freq} Hz of magnetude {fft_values[idx]}')
-            fft_values[idx] = new_magnitude*10 + fft_values[idx]   # Preserve the phase
-            print(f'{target_freq} Hz changed by {new_magnitude*10}. New amplitude is {fft_values[idx]}')
-            # print(positive_fft_values - new_positive_fft_values)
-            # Reconstruct the modified signal with inverse FFT
-            modified_signal = np.fft.ifft(fft_values).real
-            # self.export_modified_audio("Equalizer/sounds/animals_modified2.wav")
-
-        else:
-            print(f"Frequency {target_freq} Hz not found in the FFT output.")
-            modified_signal = self.signal[1]
+        # else:
+        #     print(f"Frequency {target_freq} Hz not found in the FFT output.")
+        #     modified_signal = self.signal[1]
 
         # # Loop over the target frequency range
         # for target_freq in range(target_freq[0], target_freq[1] + 1):
@@ -120,20 +148,18 @@ class Slider(QWidget):
         #     else:
         #         print(f"Frequency {target_freq} Hz not found in the FFT output.")
                 
-        # # -------------------------Testing----------------------------
-        # # Plot the Fourier Transform (magnitude)
-        # plt.subplot(2, 1, 2)
-        # # print(len(self.signal[0]), len(modified_signal))
-        # plt.plot(self.signal[0], modified_signal)
-        # plt.legend()
-        # plt.title("After modefing frequency")
-        # plt.xlabel("Time [s]")
-        # plt.ylabel("Amplitude")
-        # plt.xlim(0,10)
+        # Find indices for the frequencies within the target range
+        indices = np.where((positive_freqs >= target_freq[0]) & (positive_freqs <= target_freq[1]))[0]
 
-        # plt.tight_layout()
-        # plt.show()
-        # #--------------------------------------------------------------
+        if indices.size > 0:
+            # Display original magnitudes
+            print(f"Original magnitudes at frequencies {positive_freqs[indices]} Hz: {fft_values[indices]}")
+
+            # Adjust magnitudes within the target frequency range
+            fft_values[indices] += new_magnitude * 10  # Apply modification preserving phase
+            print(f"Modified magnitudes at frequencies {positive_freqs[indices]} Hz: {fft_values[indices]}")
+        else:
+            print("No frequencies found in the specified target range.")
 
         # Reconstruct the modified signal with inverse FFT
         modified_signal = np.fft.ifft(fft_values).real
@@ -141,15 +167,6 @@ class Slider(QWidget):
 
         return positive_fft_values, modified_signal
     
-    # ==================== Not used ===================
-    # def export_modified_audio(self, filename="modified_audio.wav"):
-    #     # Export the modified signal as a .wav file
-    #     modified_samples = np.int16(self.signal[1] / np.max(np.abs(self.signal[1])) * 32767)
-    #     modified_audio = AudioSegment(
-    #         modified_samples.tobytes(), frame_rate=1000, sample_width=2, channels=1
-    #     )
-    #     modified_audio.export(filename, format="wav")
-
 # # Run the application
 # app = QApplication(sys.argv)
 # main_window = QWidget()
@@ -182,8 +199,12 @@ class Slider(QWidget):
 # main_window.show()
 
 # sys.exit(app.exec_())
+signal = Signal()
+signal.load_signal("eCOOLizer/sounds/animal_extended_audio.wav")
+time, amp = signal.get_data()
+print(time, amp)
 
 app = QApplication([])
-slider_widget = Slider(audio_file="Equalizer/sounds/animal_extended_audio.wav")
+slider_widget = Slider(audio_file=[time, amp])
 slider_widget.show()
 app.exec_()
