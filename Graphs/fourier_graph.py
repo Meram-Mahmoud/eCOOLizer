@@ -1,7 +1,11 @@
-# fourier_graph.py
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs')))
+
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton, QFileDialog
 from PyQt5.QtCore import Qt
-from BaseGraph import GraphBase
+from .BaseGraph import GraphBase
 from signal_data import Signal
 
 class FourierTransformGraph(GraphBase):

@@ -1,15 +1,16 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs')))
 
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtCore import QTimer,Qt
-from BaseGraph import GraphBase
+from .BaseGraph import GraphBase
 from signal_data import Signal
 import sounddevice as sd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QFileDialog,QSlider,QSplitter
-from spectrogram import SpectrogramDisplay
+from .spectrogram import SpectrogramDisplay
 
 class CineGraph(GraphBase):
     def __init__(self, title="Cine Viewer"):
@@ -39,15 +40,15 @@ class CineGraph(GraphBase):
         self.current_frame = 0  
         time_data, amplitude_data = signal.get_data()
         self.plot_widget.setTitle(self.title)
-        self.display_signal(time_data, amplitude_data, pen='b') 
+        self.display_signal(time_data, amplitude_data) 
         self.play()
 
         if self.spectrogram_visible:
             self.spectrogram_display.display_spectrogram(self.signal)
 
 
-    def display_signal(self, time_data, amplitude_data, pen='b'):
-        self.plot_graph(time_data, amplitude_data, pen=pen)
+    def display_signal(self, time_data, amplitude_data):
+        self.plot_graph(time_data, amplitude_data)
 
     def toggle_spectrogram(self):
         self.spectrogram_visible = not self.spectrogram_visible
@@ -69,7 +70,7 @@ class CineGraph(GraphBase):
             return
 
         time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
-        self.plot_graph(time_data, amplitude_data, pen='b')
+        self.plot_graph(time_data, amplitude_data)
 
         window_duration = 1  
         end_time = time_data[-1] if len(time_data) > 0 else 0
@@ -85,23 +86,34 @@ class CineGraph(GraphBase):
 
     
 
+    # def play(self):
+    #     if not self.is_playing:
+    #         # sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
+    #         self.timer.start(self.playSpeed)
+    #         self.is_playing = True
+
+    # def pause(self):
+    #     if self.is_playing:
+    #         # sd.stop()  
+    #         self.timer.stop() 
+    #         self.is_playing = False  
+
     def play(self):
-        if not self.is_playing:
+        self.is_playing = True
             # sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
-            self.timer.start(self.playSpeed)
-            self.is_playing = True
+        self.timer.start(self.playSpeed)
 
     def pause(self):
-        if self.is_playing:
-            # sd.stop()  
-            self.timer.stop() 
-            self.is_playing = False  
+        self.is_playing = False
+        self.timer.stop()  
 
     def reset(self):
         # sd.stop()
         self.current_frame = 0
         self.update_plot()
         # sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
+       
+
        
      # def update_plot(self):
     #     if self.signal is None or not self.is_playing:

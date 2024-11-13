@@ -1,15 +1,22 @@
 import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs')))
 
 import numpy as np
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider, \
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog, \
     QPushButton, QHBoxLayout
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
 
 from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle
 from mainStyle import darkColor, yellowColor
+from Graphs.BaseGraph import GraphBase
+from Graphs.cine_graph import CineGraph 
+from Graphs.fourier_graph import FourierTransformGraph
+from signal_data import Signal
 
 class eCOOLizer(QMainWindow):
     def __init__(self):
@@ -21,7 +28,7 @@ class eCOOLizer(QMainWindow):
 
         self.initialize()
         self.createUI()
-        self.plotDummyData()
+        # self.plotDummyData()
 
 
 
@@ -31,7 +38,7 @@ class eCOOLizer(QMainWindow):
         y = (screen_geometry.height() - self.height()) // 2
         self.move(x, y)
     def initialize(self):
-        self.is_playing = False
+        self.is_playing = True
         self.currentMode = QPushButton()
         self.sliderPanel = None
         print("initialized")
@@ -51,18 +58,24 @@ class eCOOLizer(QMainWindow):
         self.audioLoadedName = QLabel("Need AudioName.mp3")
         self.uploadButton = QPushButton("Upload")
 
-        self.playPauseButton = QPushButton(QIcon("Main App/Assets/play.png"), "")
-        self.resetButton = QPushButton(QIcon("Main App/Assets/reset.png"), "")
+        self.playPauseButton = QPushButton(QIcon("Main_App/Assets/play.png"), "")
+        self.resetButton = QPushButton(QIcon("Main_App/Assets/reset.png"), "")
 
-        self.inputGraph = PlotWidget()
-        self.outputGraph = PlotWidget()
-        self.fourierGraph = PlotWidget()
+        # self.inputGraph = PlotWidget()
+        self.inputGraph = CineGraph("Input Graph")
+        # self.outputGraph = PlotWidget()
+        self.outputGraph = CineGraph("Output Graph")
+
+        self.inputGraph.link_with(self.outputGraph)
+
+        # self.fourierGraph = PlotWidget()
+        self.fourierGraph=FourierTransformGraph("Fourier Graph")
 
         self.buttonsGroup = QWidget()
-        self.defaultModeButton = QPushButton(QIcon("Main App/Assets/DefaultSelected.png"),"")
-        self.musicModeButton = QPushButton(QIcon("Main App/Assets/Music.png"),"")
-        self.animalModeButton = QPushButton(QIcon("Main App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("Main App/Assets/ECG.png"),"")
+        self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
+        self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
+        self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
+        self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
 
 
         self.sliderPanel = self.createSliderPanel(10)
@@ -70,27 +83,22 @@ class eCOOLizer(QMainWindow):
 
     # TESTING FUNCTION
     def updateSliderPanel(self, numSliders):
-        # If there is already a slider panel, delete it first
         if self.sliderPanel:
             self.sliderPanel.deleteLater()
 
-        # Create a new slider panel with the updated number of sliders
         self.sliderPanel = self.createSliderPanel(numSliders)
 
-        # Update the layout with the new slider panel
         sliderPanelLayout = QHBoxLayout()
         sliderPanelLayout.addWidget(self.sliderPanel)
 
-        # Find the workspace layout and add the updated layout to it
-        # Directly use workspace layout instead of using findChild(QWidget)
-        workspaceLayout = self.mainLayout.itemAt(1)  # 1 is the index for the main workspace layout
+        workspaceLayout = self.mainLayout.itemAt(1)  
         if workspaceLayout:
-            workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)  # Add it to the second layout of workspace
+            workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
     def createSliderPanel(self, numSliders):
-        sliderPanelLayout = QHBoxLayout()  # Layout for the panel
-        sliderPanelLayout.setAlignment(Qt.AlignCenter)  # Center the entire slider panel layout
-        sliderPanelLayout.setSpacing(20)  # Set horizontal spacing between the vertical layouts
+        sliderPanelLayout = QHBoxLayout() 
+        sliderPanelLayout.setAlignment(Qt.AlignCenter) 
+        sliderPanelLayout.setSpacing(20)        
 
         for indx in range(1, numSliders + 1):
             # Create slider
@@ -127,10 +135,8 @@ class eCOOLizer(QMainWindow):
         if not hasattr(self, 'time'):
             self.time = 0  # Initialize the time if it doesn't exist
 
-        # Generate time over 10 seconds, 1000 points
         t = np.linspace(self.time, self.time + 10, 1000)
 
-        # Base signal: Gaussian bell curve (e.g., normal distribution)
         amplitude = 1  # Amplitude of the bell curve
         mean = 5  # Center of the bell curve (in seconds)
         std_dev = 1  # Standard deviation (width of the bell curve)
@@ -141,7 +147,6 @@ class eCOOLizer(QMainWindow):
         variation1 = bell_curve + 0.1 * np.random.normal(size=len(t))  # Variation for input
         variation2 = bell_curve + 0.2 * np.random.normal(size=len(t))  # Variation for output
 
-        # Set variation3 as a pure Gaussian bell curve for Fourier-like signal
         variation3 = bell_curve  # Pure bell curve for Fourier graph
 
         # Clear the previous plot
@@ -162,12 +167,16 @@ class eCOOLizer(QMainWindow):
         print("UI setting Done")
     def connectUI(self):
         self.playPauseButton.clicked.connect(self.togglePlayPause)
+        self.resetButton.clicked.connect(self.Reset)
         self.defaultModeButton.clicked.connect(self.changeMode)
         self.musicModeButton.clicked.connect(self.changeMode)
         self.animalModeButton.clicked.connect(self.changeMode)
         self.ecgModeButton.clicked.connect(self.changeMode)
+        self.uploadButton.clicked.connect(self.load_signal)
+        
 
         print("UI Connected")
+
     def stylingUI(self):
         self.setStyleSheet(mainStyle)
         self.eCOOLizerLogo.setStyleSheet(logoStyle)
@@ -197,66 +206,36 @@ class eCOOLizer(QMainWindow):
         self.buttonsGroup.setStyleSheet(buttonsGroupStyle)
         self.buttonsGroup.setContentsMargins(10,0,10,0)
 
-        #!!!Should be in graph class
-        #!!!!!ALOT of Repeatition Should be in a class
-        self.inputGraph.setBackground(darkColor)
-        self.inputGraph.getAxis('left').setTextPen(yellowColor)
-        self.inputGraph.getAxis('left').setPen(yellowColor)
-        self.inputGraph.getAxis('bottom').setTextPen(yellowColor)
-        self.inputGraph.getAxis('bottom').setPen(yellowColor)
-
-        self.outputGraph.setBackground(darkColor)
-        self.outputGraph.getAxis('left').setTextPen(yellowColor)
-        self.outputGraph.getAxis('left').setPen(yellowColor)
-        self.outputGraph.getAxis('bottom').setTextPen(yellowColor)
-        self.outputGraph.getAxis('bottom').setPen(yellowColor)
-
-        self.fourierGraph.setBackground(darkColor)
-        self.fourierGraph.getAxis('left').setTextPen(yellowColor)
-        self.fourierGraph.getAxis('left').setPen(yellowColor)
-        self.fourierGraph.getAxis('bottom').setTextPen(yellowColor)
-        self.fourierGraph.getAxis('bottom').setPen(yellowColor)
-
-
 
     print("UI is Styled")
 
-    def togglePlayPause(self):
-            if self.is_playing:
-                self.playPauseButton.setIcon(QIcon("Main App/Assets/play.png"))
-                self.is_playing = False
-                print("Playback paused")
-            else:
-                self.playPauseButton.setIcon(QIcon("Main App/Assets/pause.png"))
-                self.is_playing = True
-                print("Playback started")
 
     def changeMode(self):
         button = self.sender()
         if button != self.currentMode:
             match button:
                 case self.defaultModeButton:
-                    button.setIcon(QIcon("Main App/Assets/DefaultSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
                     self.updateSliderPanel(10)  # Change the number of sliders for Default mode
                 case self.musicModeButton:
-                    button.setIcon(QIcon("Main App/Assets/MusicSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
                     self.updateSliderPanel(5)  # Change the number of sliders for Music mode
                 case self.animalModeButton:
-                    button.setIcon(QIcon("Main App/Assets/AnimalSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
                     self.updateSliderPanel(7)  # Change the number of sliders for Animal mode
                 case self.ecgModeButton:
-                    button.setIcon(QIcon("Main App/Assets/EcgSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/EcgSelected.png"))
                     self.updateSliderPanel(12)  # Change the number of sliders for ECG mode
 
             match self.currentMode:
                 case self.defaultModeButton:
-                    self.currentMode.setIcon(QIcon("Main App/Assets/Default.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Default.png"))
                 case self.musicModeButton:
-                    self.currentMode.setIcon(QIcon("Main App/Assets/Music.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Music.png"))
                 case self.animalModeButton:
-                    self.currentMode.setIcon(QIcon("Main App/Assets/Animal.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Animal.png"))
                 case self.ecgModeButton:
-                    self.currentMode.setIcon(QIcon("Main App/Assets/Ecg.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Ecg.png"))
 
             self.currentMode.setIconSize(button.sizeHint())
             button.setIconSize(button.sizeHint() * 1.5)
@@ -306,6 +285,48 @@ class eCOOLizer(QMainWindow):
         self.mainLayout.addLayout(topBar,20)
         self.mainLayout.addLayout(workspace,90)
         print("Layout is Set")
+
+    def load_signal(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
+        if file_path:
+            signal = Signal()
+            signal.load_signal(file_path)
+            file_name = os.path.basename(file_path)
+            self.audioLoadedName.setText(f"{file_name}")
+
+            self.inputGraph.set_signal(signal)
+            self.outputGraph.set_signal(signal)
+            
+
+            self.inputGraph.clear()
+            self.outputGraph.clear()
+            self.inputGraph.timer.start(self.inputGraph.playSpeed)
+            self.fourierGraph.set_signal(signal)
+
+    def togglePlayPause(self):
+        if self.is_playing:
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
+            self.is_playing = False
+            print("Playback paused")
+            
+            self.inputGraph.pause()
+            self.outputGraph.pause()
+
+        else:
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
+            self.is_playing = True
+            print("Playback started")
+            
+            self.inputGraph.play()
+            self.outputGraph.play()
+
+    def Reset(self):
+        self.inputGraph.reset()
+        self.outputGraph.reset()
+
+
+
+           
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
