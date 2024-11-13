@@ -1,5 +1,6 @@
 import numpy as np
 import soundfile as sf
+import sounddevice as sd
 #from scipy.signal import spectrogram
 
 class Signal:
@@ -7,6 +8,7 @@ class Signal:
         self.data = None
         self.sample_rate = None
         self.file_path = file_path
+        self.playing=False
 
     def load_signal(self, file_path):
         self.data, self.sample_rate = sf.read(file_path)
@@ -82,13 +84,30 @@ class Signal:
         return self.time_data, self.data
     
         
+    # def play_audio(self, start_frame=0, end_frame=None):
+    #     if end_frame is None:
+    #         end_frame = len(self.data)
+    #     audio_chunk = self.data[start_frame:end_frame]
+    #     import sounddevice as sd
+    #     sd.play(audio_chunk, self.sample_rate)
+    #     sd.wait()
+
     def play_audio(self, start_frame=0, end_frame=None):
+        if self.data is None:
+            raise ValueError("Load audio data before attempting playback.")
+        
         if end_frame is None:
             end_frame = len(self.data)
+        
         audio_chunk = self.data[start_frame:end_frame]
-        import sounddevice as sd
-        sd.play(audio_chunk, self.sample_rate)
-        sd.wait()
+        
+        if not self.playing:
+            sd.play(audio_chunk, self.sample_rate)
+            self.playing = True
+        else:
+            sd.stop()  # Stop if currently playing
+            self.playing = False
+
 
 
 

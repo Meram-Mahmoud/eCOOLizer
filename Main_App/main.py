@@ -6,12 +6,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs'
 import numpy as np
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog, \
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog,QRadioButton, QButtonGroup, \
     QPushButton, QHBoxLayout
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
 
-from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle
+from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle,speedSliderStyle,radioButtonStyle
 from mainStyle import darkColor, yellowColor
 from Graphs.BaseGraph import GraphBase
 from Graphs.cine_graph import CineGraph 
@@ -39,6 +39,7 @@ class eCOOLizer(QMainWindow):
         self.move(x, y)
     def initialize(self):
         self.is_playing = True
+        self.audio_playing=False
         self.currentMode = QPushButton()
         self.sliderPanel = None
         print("initialized")
@@ -61,12 +62,26 @@ class eCOOLizer(QMainWindow):
         self.playPauseButton = QPushButton(QIcon("Main_App/Assets/play.png"), "")
         self.resetButton = QPushButton(QIcon("Main_App/Assets/reset.png"), "")
 
+       
+
+
+        self.originalModeRadio = QRadioButton("Original")
+        self.modifiedModeRadio = QRadioButton("Modified")
+        self.originalModeRadio.setChecked(True)
+        self.playAudio = QPushButton(QIcon("Main_App/Assets/pause audio.png"), "")
+
+
         # self.inputGraph = PlotWidget()
         self.inputGraph = CineGraph("Input Graph")
         # self.outputGraph = PlotWidget()
         self.outputGraph = CineGraph("Output Graph")
 
         self.inputGraph.link_with(self.outputGraph)
+
+
+        self.speedSlider = QSlider(Qt.Horizontal)
+        self.speedSlider.setRange(50, 500) 
+        self.speedSlider.setValue(self.inputGraph.playSpeed)
 
         # self.fourierGraph = PlotWidget()
         self.fourierGraph=FourierTransformGraph("Fourier Graph")
@@ -173,6 +188,9 @@ class eCOOLizer(QMainWindow):
         self.animalModeButton.clicked.connect(self.changeMode)
         self.ecgModeButton.clicked.connect(self.changeMode)
         self.uploadButton.clicked.connect(self.load_signal)
+        self.speedSlider.valueChanged.connect(self.changePlottingSpeed)
+        self.playAudio.clicked.connect(self.toggle_audio_playback)
+        self.originalModeRadio.toggled.connect(self.switch_mode)
         
 
         print("UI Connected")
@@ -188,6 +206,13 @@ class eCOOLizer(QMainWindow):
         self.playPauseButton.setIconSize(QSize(25, 25))
         self.resetButton.setStyleSheet(controlButtonStyle)
         self.resetButton.setIconSize(QSize(25, 25))
+        self.playAudio.setStyleSheet(controlButtonStyle)
+        self.playAudio.setIconSize(QSize(25, 25))
+
+        self.speedSlider.setStyleSheet(speedSliderStyle)
+        self.speedSlider.setFixedWidth(250)
+        self.originalModeRadio.setStyleSheet(radioButtonStyle)
+        self.modifiedModeRadio.setStyleSheet(radioButtonStyle)
 
 
         buttonSize = 25
@@ -249,6 +274,12 @@ class eCOOLizer(QMainWindow):
         topBar.addSpacing(20)
         topBar.addWidget(self.playPauseButton)
         topBar.addWidget(self.resetButton)
+        topBar.addWidget(self.speedSlider)
+        topBar.addSpacing(30)
+
+        topBar.addWidget(self.playAudio)
+        topBar.addWidget(self.originalModeRadio)
+        topBar.addWidget(self.modifiedModeRadio)
         topBar.addStretch()
 
         workspace = QVBoxLayout()
@@ -301,6 +332,7 @@ class eCOOLizer(QMainWindow):
             self.inputGraph.clear()
             self.outputGraph.clear()
             self.inputGraph.timer.start(self.inputGraph.playSpeed)
+
             self.fourierGraph.set_signal(signal)
 
     def togglePlayPause(self):
@@ -323,6 +355,42 @@ class eCOOLizer(QMainWindow):
     def Reset(self):
         self.inputGraph.reset()
         self.outputGraph.reset()
+
+    def changePlottingSpeed(self):
+        speed = self.speedSlider.value()
+        self.inputGraph.set_play_speed(speed)
+        self.outputGraph.set_play_speed(speed)
+
+    def toggle_audio_playback(self):
+            if self.originalModeRadio.isChecked():
+                signal = self.inputGraph.signal
+                print("Toggling audio for: Original")
+            elif self.modifiedModeRadio.isChecked():
+                signal = self.outputGraph.signal
+                print("Toggling audio for: Modified")
+            else:
+                print("No mode selected for audio playback.")
+                return
+
+            if signal is not None:
+                signal.play_audio() 
+                if not self.audio_playing:
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
+                    self.audio_playing = True
+                else:
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
+                    self.audio_playing = False
+            else:
+                print("No audio signal loaded.")
+       
+
+    def switch_mode(self):
+
+        if self.audio_playing:
+            self.toggle_audio_playback()  
+            self.toggle_audio_playback()  
+            print("Switched audio mode during playback.")
+
 
 
 
