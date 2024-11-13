@@ -66,11 +66,9 @@ class ArrhythmiaAmplifierApp(QWidget):
         self.fourier_graph = FourierTransformGraph("Fourier Transform")
         main_layout.addWidget(self.fourier_graph)
         
-        # Add widgets to main layout
         main_layout.addLayout(button_layout)
         main_layout.addLayout(slider_layout)
         
-        # Set layout and window title
         self.setLayout(main_layout)
         self.setWindowTitle("Arrhythmia Amplifier")
         
@@ -81,8 +79,6 @@ class ArrhythmiaAmplifierApp(QWidget):
             self.ecg_signal.load_signal_from_csv(file_path)
 
             self.ecg_signal.sample_rate=1 / (self.ecg_signal.time[1] - self.ecg_signal.time[0])
-            # self.ecg_signal=signal.data
-            # self.time=signal.time
             self.ecg_signal.sample_rate=self.fs = 1 / (self.ecg_signal.time[1] - self.ecg_signal.time[0])
 
             print(self.ecg_signal.data)
@@ -98,19 +94,9 @@ class ArrhythmiaAmplifierApp(QWidget):
 
             # Bandpass filter ranges for different arrhythmias
             self.filtered_components['Normal'] = self.bandpass_filter(self.ecg_signal.data, 0.5, 20)
-            self.filtered_components['Aflutter'] = self.bandpass_filter(self.ecg_signal.data, 5, 20)
-            self.filtered_components['Afib'] = self.bandpass_filter(self.ecg_signal.data, 0.5, 5)
-            self.filtered_components['Bradycardia'] = self.bandpass_filter(self.ecg_signal.data, 3, 10)
-            
-            # Identify Vfib peaks to add markers
-            # self.vfib_peaks = self.detect_vfib_peaks(self.filtered_components['Vfib'])
-            # self.afib_peaks = self.detect_vfib_peaks(self.filtered_components['Afib'])
-            self.tfib_peaks = self.detect_vfib_peaks(self.filtered_components['Bradycardia'])
-
-            # Add markers for Vfib regions
-            for vfib_time in self.vfib_peaks:
-                line = pg.InfiniteLine(pos=vfib_time, angle=90, pen=pg.mkPen(color='r', width=1.5, style=Qt.DashLine))
-                self.input_graph.addItem(line)
+            self.filtered_components['Aflutter'] = self.bandpass_filter(self.ecg_signal.data, 59, 62)
+            self.filtered_components['Afib'] = self.bandpass_filter(self.ecg_signal.data, 59, 62)
+            self.filtered_components['Bradycardia'] = self.bandpass_filter(self.ecg_signal.data, 75, 96)
 
             self.update_amplification()
 
@@ -123,12 +109,6 @@ class ArrhythmiaAmplifierApp(QWidget):
         b, a = butter(order, [low, high], btype='band')
         return filtfilt(b, a, signal)
     
-    def detect_vfib_peaks(self, vfib_signal):
-        """Detect regions with high energy in the Vfib component as Vfib 'peaks'."""
-        threshold = np.max(np.abs(vfib_signal)) * 0.6  # Set a threshold for Vfib regions
-        peaks = np.where(np.abs(vfib_signal) > threshold)[0]
-        return self.ecg_signal.time[peaks]
-
 
     def update_amplification(self):
         """Apply amplification based on slider values and update the Output Signal plot."""
@@ -139,11 +119,10 @@ class ArrhythmiaAmplifierApp(QWidget):
 
          # Apply amplification based on frequency band
         amplified_fft = self.fft_data.copy()
-        for name, freq_range in zip(['Normal','Aflutter', 'Afib', 'Bradycardia'], [(0.5,20),(5, 20), (0.5, 5), (20, 40)]):
+        for name, freq_range in zip(['Normal','Aflutter', 'Afib', 'Bradycardia'], [(0.5,20),(59, 61), (59, 61), (70, 96)]):
             amp_factor = self.sliders[name].value() / 10.0
             self.slider_labels[name].setText(f"{name} Amplification: {amp_factor:.1f}")
 
-            # Get indices for the desired frequency range
             band_indices = (np.abs(self.fft_freq) >= freq_range[0]) & (np.abs(self.fft_freq) <= freq_range[1])
             amplified_fft[band_indices] *= amp_factor
 
@@ -151,32 +130,9 @@ class ArrhythmiaAmplifierApp(QWidget):
         self.manipulated_signal.data = np.real(ifft(amplified_fft))
         self.manipulated_signal.time = self.ecg_signal.time
 
-        # # Start with the original signal as the base for the output
-        # self.manipulated_signal=self.ecg_signal
-        # self.manipulated_signal.data = self.ecg_signal.data.copy() * (self.sliders['Normal'].value() / 10.0)
-        # print("slider value")
-        # slidervall=self.sliders['Normal'].value()
-        # print(slidervall)
-
-        # # Add the arrhythmic components based on slider values
-        # for name in ['Normal','Vfib', 'Afib', 'Tachycardia']:
-        #     component = self.filtered_components[name]
-        #     amp_factor = self.sliders[name].value() / 10.0
-        #     self.slider_labels[name].setText(f"{name} Amplification: {amp_factor:.1f}")
-        #     self.manipulated_signal.data += amp_factor * component
-        #     print("VFIB")
-        #     print(self.sliders['Vfib'].value())
-        #     print("AFIB")
-        #     print(self.sliders['Afib'].value())
-        #     print("TFIB")
-        #     print(self.sliders['Tachycardia'].value())
-            
-
-        # Plot the amplified output signal
-        self.output_graph.clear()  # Clears the previous plot
-        self.output_graph.plot(self.manipulated_signal.time, self.manipulated_signal.data, pen='r')  # Replot with updated signal
+        self.output_graph.clear()  
+        self.output_graph.plot(self.manipulated_signal.time, self.manipulated_signal.data, pen='r')  
         
-        # Also update the frequency domain plot
         self.fourier_graph.set_signal(self.manipulated_signal) 
 
 
