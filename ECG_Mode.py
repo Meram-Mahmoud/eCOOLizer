@@ -3,8 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QPushButton, QSlider, QLabel, QFileDialog)
+from PyQt5.QtWidgets import (QApplication, QFileDialog)
 from PyQt5.QtCore import Qt
 import pyqtgraph as pg
 from scipy.fft import fft, ifft, fftfreq
@@ -13,10 +12,26 @@ from fourier_graph import FourierTransformGraph
 from signal_data import Signal
 
 
-class ArrhythmiaAmplifierApp(QWidget):
-    def __init__(self):
+# EL FUNCTION FOR LOADING SIGNAL FROM CSV (PUT IN SIGNAL_DATA CLASS)
+
+    # def load_signal_from_csv(self, file_path):
+    #     df = pd.read_csv(file_path)
+    
+    #     # Extract time and data columns
+    #     self.time = df['Time'].values  # Extract the time (x-axis)
+    #     self.data = df['Amplitude'].values
+
+
+class ECG_Equalizer:
+    def __init__(self, signal, input_graph, output_graph, fourier_graph, slider_names):
         super().__init__()
-        
+
+        #self.load_button.clicked.connect(self.load_signal)
+        #slider.valueChanged.connect(self.update_amplification)
+
+        #elmafrood a pass el signal data lel class brdo?
+        self.ecg_signal=signal
+
         self.ecg_signal = Signal()
         self.manipulated_signal= Signal()
         self.manipulated_signal = self.ecg_signal
@@ -27,50 +42,16 @@ class ArrhythmiaAmplifierApp(QWidget):
             'Bradycardia': None
         }
 
-        main_layout = QVBoxLayout()
-        button_layout = QHBoxLayout()
-        slider_layout = QVBoxLayout()
-        
-        # Load Signal Button
-        self.load_button = QPushButton('Load Signal')
-        self.load_button.clicked.connect(self.load_signal)
-        button_layout.addWidget(self.load_button)
-        
-        # Sliders for different arrhythmia components
-        self.sliders = {}
-        self.slider_labels = {}
-        slider_names = ['Normal', 'Aflutter', 'Afib', 'Bradycardia']
-        for name in slider_names:
-            slider_label = QLabel(f"{name} Amplification: 1.0")
-            slider = QSlider(Qt.Horizontal)
-            slider.setMinimum(0)
-            slider.setMaximum(50)
-            slider.setValue(10)
-            slider.valueChanged.connect(self.update_amplification)
-            
-            # Store the slider and label
-            self.sliders[name] = slider
-            self.slider_labels[name] = slider_label
-            
-            # Add to layout
-            slider_layout.addWidget(slider_label)
-            slider_layout.addWidget(slider)
-        
+        self.input_graph=input_graph
+        self.output_graph=output_graph
+        self.fourier_graph=fourier_graph
+        self.slider_names=slider_names
 
-        self.input_graph = pg.PlotWidget()
-        main_layout.addWidget(self.input_graph)
 
-        self.output_graph = pg.PlotWidget()
-        main_layout.addWidget(self.output_graph)
-        
-        self.fourier_graph = FourierTransformGraph("Fourier Transform")
-        main_layout.addWidget(self.fourier_graph)
-        
-        main_layout.addLayout(button_layout)
-        main_layout.addLayout(slider_layout)
-        
-        self.setLayout(main_layout)
-        self.setWindowTitle("Arrhythmia Amplifier")
+    def setSliders(self,slider_names):
+        self.slider_names=slider_names
+        # fel GUI bara i will connect the slider (.connect) to self.updateAmplification
+        # w hena kol ma aghayar el slider ha pass el slider values to the class (along with updating amplification)
         
 
     def load_signal(self):
@@ -136,9 +117,58 @@ class ArrhythmiaAmplifierApp(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    window = ArrhythmiaAmplifierApp()
+    window = ECG_Equalizer()
     window.show()
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()
+
+
+    # GUI OF MY PART : sliders, graphs, load button  
+
+
+#         main_layout = QVBoxLayout()
+#         button_layout = QHBoxLayout()
+#         slider_layout = QVBoxLayout()
+        
+#         # Load Signal Button
+#         self.load_button = QPushButton('Load Signal')
+#         self.load_button.clicked.connect(self.load_signal)
+#         button_layout.addWidget(self.load_button)
+        
+#         # Sliders for different arrhythmia components
+#         self.sliders = {}
+#         self.slider_labels = {}
+#         slider_names = ['Normal', 'Aflutter', 'Afib', 'Bradycardia']
+#         for name in slider_names:
+#             slider_label = QLabel(f"{name} Amplification: 1.0")
+#             slider = QSlider(Qt.Horizontal)
+#             slider.setMinimum(0)
+#             slider.setMaximum(50)
+#             slider.setValue(10)
+#             slider.valueChanged.connect(self.update_amplification)
+            
+#             # Store the slider and label
+#             self.sliders[name] = slider
+#             self.slider_labels[name] = slider_label
+            
+#             # Add to layout
+#             slider_layout.addWidget(slider_label)
+#             slider_layout.addWidget(slider)
+        
+
+#         self.input_graph = pg.PlotWidget()
+#         main_layout.addWidget(self.input_graph)
+
+#         self.output_graph = pg.PlotWidget()
+#         main_layout.addWidget(self.output_graph)
+        
+#         self.fourier_graph = FourierTransformGraph("Fourier Transform")
+#         main_layout.addWidget(self.fourier_graph)
+        
+#         main_layout.addLayout(button_layout)
+#         main_layout.addLayout(slider_layout)
+        
+#         self.setLayout(main_layout)
+#         self.setWindowTitle("Arrhythmia Amplifier")
