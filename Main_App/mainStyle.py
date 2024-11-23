@@ -92,3 +92,59 @@ sliderLabelStyle = f"""
         color:{yellowColor};
     }}
 """
+
+speedSliderStyle = f"""
+    QSlider::groove:horizontal {{
+        background: {darkColor};
+        height: 2px;  /* Smaller height for a sleeker appearance */
+        border-radius: 2px;
+        margin: 0px 12px; /* Adds space around the groove */
+    }}
+
+    QSlider::handle:horizontal {{
+        background: {yellowColor};
+        width: 15px;  /* Smaller width for a compact look */
+        height: 15px;
+        border-radius: 5px;  /* Round handle */
+        margin: -3px 0px; /* Adjust handle position */
+    }}
+
+    QSlider::add-page:horizontal {{
+        background: #EFEFEF;
+        height: 2px;
+        border-radius: 2px;
+    }}
+
+    QSlider::sub-page:horizontal {{
+        background: {yellowColor};
+        height: 2px;
+        border-radius: 2px;
+    }}
+"""
+
+radioButtonStyle = f"""
+    QRadioButton {{
+        color: {yellowColor};
+        font-family: {fontFamily};
+        font-size: 12px;
+        font-weight: 500;
+        spacing: 6px; /* Space between radio circle and label */
+    }}
+
+    QRadioButton::indicator {{
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        border: 2px solid {yellowColor};
+        background-color: {darkColor};
+    }}
+
+    QRadioButton::indicator:checked {{
+        background-color: {yellowColor};
+        border: 2px solid {yellowColor};
+    }}
+
+    QRadioButton::indicator:hover {{
+        border: 2px solid #FFFFFF; /* Lighten border on hover */
+    }}
+"""

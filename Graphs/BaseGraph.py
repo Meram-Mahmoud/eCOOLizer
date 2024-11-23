@@ -56,8 +56,9 @@ class GraphBase(QWidget):
             pen = pg.mkPen(yellowColor)  
 
         self.plot_widget.clear()
+        
         self.plot_widget.plot(time_data, amplitude_data, pen=pen)
-
+ 
 
     def clear(self):
         self.plot_widget.clear()

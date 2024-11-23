@@ -6,17 +6,18 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs'
 import numpy as np
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog, \
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog,QRadioButton, QButtonGroup, \
     QPushButton, QHBoxLayout
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
 
-from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle
+from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle,speedSliderStyle,radioButtonStyle
 from mainStyle import darkColor, yellowColor
 from Graphs.BaseGraph import GraphBase
 from Graphs.cine_graph import CineGraph 
 from Graphs.fourier_graph import FourierTransformGraph
 from signal_data import Signal
+from sliders import Slider
 
 class eCOOLizer(QMainWindow):
     def __init__(self):
@@ -39,8 +40,11 @@ class eCOOLizer(QMainWindow):
         self.move(x, y)
     def initialize(self):
         self.is_playing = True
+        self.audio_playing=False
         self.currentMode = QPushButton()
         self.sliderPanel = None
+        self.signal=Signal()
+
         print("initialized")
     def createUI(self):
         self.createUIElements()
@@ -61,12 +65,28 @@ class eCOOLizer(QMainWindow):
         self.playPauseButton = QPushButton(QIcon("Main_App/Assets/play.png"), "")
         self.resetButton = QPushButton(QIcon("Main_App/Assets/reset.png"), "")
 
+       
+        self.toggleSpectogram=QPushButton("Spectogram")
+        self.toggleAudiogram=QPushButton("audigram")
+
+
+        self.originalModeRadio = QRadioButton("Original")
+        self.modifiedModeRadio = QRadioButton("Modified")
+        self.originalModeRadio.setChecked(True)
+        self.playAudio = QPushButton(QIcon("Main_App/Assets/pause audio.png"), "")
+
+
         # self.inputGraph = PlotWidget()
         self.inputGraph = CineGraph("Input Graph")
         # self.outputGraph = PlotWidget()
         self.outputGraph = CineGraph("Output Graph")
 
         self.inputGraph.link_with(self.outputGraph)
+
+
+        self.speedSlider = QSlider(Qt.Horizontal)
+        self.speedSlider.setRange(50, 500) 
+        self.speedSlider.setValue(self.inputGraph.playSpeed)
 
         # self.fourierGraph = PlotWidget()
         self.fourierGraph=FourierTransformGraph("Fourier Graph")
@@ -78,15 +98,17 @@ class eCOOLizer(QMainWindow):
         self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
 
 
-        self.sliderPanel = self.createSliderPanel(10)
+        self.sliderPanel = self.createSliderPanel("default")
         print("UI elements Created")
 
     # TESTING FUNCTION
-    def updateSliderPanel(self, numSliders):
+    def updateSliderPanel(self, mode = "default"):
         if self.sliderPanel:
             self.sliderPanel.deleteLater()
 
-        self.sliderPanel = self.createSliderPanel(numSliders)
+
+        #NEED MODE CHECK
+        self.sliderPanel = self.createSliderPanel(mode)
 
         sliderPanelLayout = QHBoxLayout()
         sliderPanelLayout.addWidget(self.sliderPanel)
@@ -95,36 +117,58 @@ class eCOOLizer(QMainWindow):
         if workspaceLayout:
             workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
-    def createSliderPanel(self, numSliders):
+    def createSliderPanel(self, mode = "default"):
         sliderPanelLayout = QHBoxLayout() 
         sliderPanelLayout.setAlignment(Qt.AlignCenter) 
         sliderPanelLayout.setSpacing(20)        
+        if mode == "default":
+            for ind in range(1,11):
+                slider = Slider(label=f"{ind*2000} HZ")
+                slider.set_freq(ind * 2000)
+                # print(self.signal.get_data())
+                slider.set_signal(self.signal.get_data())
+                slider.samping_rate = self.signal.sample_rate
+                slider.newSignalAndFourier.connect(self.handleSliderChange)
+                sliderPanelLayout.addWidget(slider)
+        # elif mode == "music":
+        #     dogSlider = Slider("dog")
+        #     dogSlider.set_freq(2000)
+        #     dogSlider.set_signal(self.signal.get_data())
+        #     dogSlider.samping_rate = self.signal.sample_rate
+        #     dogSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+              
+            
+        #     catSlider = Slider("cat")
+        #     catSlider.set_freq(3000)
+        #     # print(self.signal.get_data())
+        #     catSlider.set_signal(self.signal.get_data())
+        #     catSlider.samping_rate = self.signal.sample_rate
+        #     catSlider.newSignalAndFourier.connect(self.handleSliderChange)
+            
+        #     # print(self.signal.get_data())
+        #     birdSlider.set_signal(self.signal.get_data())
+        #     birdSlider.samping_rate = self.signal.sample_rate
+        #     birdSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+        #     birdSlider = Slider("bird")
+        #     birdSlider.set_freq(4000)
+        #     # print(self.signal.get_data())
 
-        for indx in range(1, numSliders + 1):
-            # Create slider
-            slider = QSlider(Qt.Vertical)
-            slider.setStyleSheet(sliderStyle)
-            slider.setRange(0, 100)  # Set the range as an example (0 to 100)
+        # elif mode == "music":
+        #     triangleSlider = Slider("triangle")
+        #     triangleSlider.set_freq(11000)
+        #     triangleSlider.set_signal(self.signal.get_data())
+        #     triangleSlider.samping_rate = self.signal.sample_rate
+        #     triangleSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+            
+        #     pianoSlider = Slider("dog")
+        #     pianoSlider.set_freq(300)
+        #     pianoSlider.set_signal(self.signal.get_data())
+        #     pianoSlider.samping_rate = self.signal.sample_rate
+        #     pianoSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+              
+              
 
-            # Create label
-            label = QLabel(f"Slider#{indx}")
-            label.setStyleSheet(sliderLabelStyle)
-            label.setAlignment(Qt.AlignCenter)
-
-            # Create a vertical layout for each slider and label
-            verticalLayout = QVBoxLayout()
-            verticalLayout.addWidget(slider)
-            verticalLayout.addWidget(label)
-            verticalLayout.setAlignment(Qt.AlignCenter)  # Center the slider and label in the vertical layout
-            verticalLayout.setSpacing(5)  # Remove vertical spacing between slider and label
-
-            # Add the vertical layout to the horizontal layout
-            sliderPanelLayout.addLayout(verticalLayout)
-
-            # Add spacing between the sliders themselves
-            if indx < numSliders:  # Avoid adding spacing after the last slider
-                sliderPanelLayout.addSpacing(30)  # Set the spacing between sliders
-
+            sliderPanelLayout.addWidget(slider)
         # Create a QWidget to hold the slider panel layout and return it
         sliderPanelWidget = QWidget()
         sliderPanelWidget.setLayout(sliderPanelLayout)
@@ -173,6 +217,12 @@ class eCOOLizer(QMainWindow):
         self.animalModeButton.clicked.connect(self.changeMode)
         self.ecgModeButton.clicked.connect(self.changeMode)
         self.uploadButton.clicked.connect(self.load_signal)
+        self.speedSlider.valueChanged.connect(self.changePlottingSpeed)
+        self.playAudio.clicked.connect(self.toggle_audio_playback)
+        self.originalModeRadio.toggled.connect(self.switch_mode)
+        self.toggleSpectogram.clicked.connect(self.hideShowSpectogram)
+        self.toggleAudiogram.clicked.connect(self.toggleScale)
+
         
 
         print("UI Connected")
@@ -184,10 +234,20 @@ class eCOOLizer(QMainWindow):
         self.audioLoadedName.setContentsMargins(10,0,10,0)
         self.uploadButton.setStyleSheet(importButton)
 
+        self.toggleSpectogram.setStyleSheet(importButton)
+        self.toggleAudiogram.setStyleSheet(importButton)
+
         self.playPauseButton.setStyleSheet(controlButtonStyle)
         self.playPauseButton.setIconSize(QSize(25, 25))
         self.resetButton.setStyleSheet(controlButtonStyle)
         self.resetButton.setIconSize(QSize(25, 25))
+        self.playAudio.setStyleSheet(controlButtonStyle)
+        self.playAudio.setIconSize(QSize(25, 25))
+
+        self.speedSlider.setStyleSheet(speedSliderStyle)
+        self.speedSlider.setFixedWidth(250)
+        self.originalModeRadio.setStyleSheet(radioButtonStyle)
+        self.modifiedModeRadio.setStyleSheet(radioButtonStyle)
 
 
         buttonSize = 25
@@ -216,16 +276,16 @@ class eCOOLizer(QMainWindow):
             match button:
                 case self.defaultModeButton:
                     button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
-                    self.updateSliderPanel(10)  # Change the number of sliders for Default mode
+                    self.updateSliderPanel("default")  # Change the number of sliders for Default mode
                 case self.musicModeButton:
                     button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
-                    self.updateSliderPanel(5)  # Change the number of sliders for Music mode
+                    self.updateSliderPanel("music")  # Change the number of sliders for Music mode
                 case self.animalModeButton:
                     button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
-                    self.updateSliderPanel(7)  # Change the number of sliders for Animal mode
+                    self.updateSliderPanel("animal")  # Change the number of sliders for Animal mode
                 case self.ecgModeButton:
                     button.setIcon(QIcon("Main_App/Assets/EcgSelected.png"))
-                    self.updateSliderPanel(12)  # Change the number of sliders for ECG mode
+                    self.updateSliderPanel("ecg")  # Change the number of sliders for ECG mode
 
             match self.currentMode:
                 case self.defaultModeButton:
@@ -249,6 +309,14 @@ class eCOOLizer(QMainWindow):
         topBar.addSpacing(20)
         topBar.addWidget(self.playPauseButton)
         topBar.addWidget(self.resetButton)
+        topBar.addWidget(self.speedSlider)
+        topBar.addWidget(self.toggleSpectogram)
+        topBar.addWidget(self.toggleAudiogram)
+        topBar.addSpacing(30)
+
+        topBar.addWidget(self.playAudio)
+        topBar.addWidget(self.originalModeRadio)
+        topBar.addWidget(self.modifiedModeRadio)
         topBar.addStretch()
 
         workspace = QVBoxLayout()
@@ -289,23 +357,24 @@ class eCOOLizer(QMainWindow):
     def load_signal(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
         if file_path:
-            signal = Signal()
-            signal.load_signal(file_path)
+            # self.signal = Signal()
+            self.signal.load_signal(file_path)
             file_name = os.path.basename(file_path)
             self.audioLoadedName.setText(f"{file_name}")
 
-            self.inputGraph.set_signal(signal)
-            self.outputGraph.set_signal(signal)
+            self.inputGraph.set_signal(self.signal)
+            self.outputGraph.set_signal(self.signal)
             
 
             self.inputGraph.clear()
             self.outputGraph.clear()
             self.inputGraph.timer.start(self.inputGraph.playSpeed)
-            self.fourierGraph.set_signal(signal)
+
+            self.fourierGraph.set_signal(self.signal)
 
     def togglePlayPause(self):
         if self.is_playing:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
             self.is_playing = False
             print("Playback paused")
             
@@ -313,7 +382,7 @@ class eCOOLizer(QMainWindow):
             self.outputGraph.pause()
 
         else:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
             self.is_playing = True
             print("Playback started")
             
@@ -323,6 +392,53 @@ class eCOOLizer(QMainWindow):
     def Reset(self):
         self.inputGraph.reset()
         self.outputGraph.reset()
+
+    def changePlottingSpeed(self):
+        speed = self.speedSlider.value()
+        self.inputGraph.set_play_speed(speed)
+        self.outputGraph.set_play_speed(speed)
+
+    def toggle_audio_playback(self):
+            if self.originalModeRadio.isChecked():
+                signal = self.inputGraph.signal
+                print("Toggling audio for: Original")
+            elif self.modifiedModeRadio.isChecked():
+                signal = self.outputGraph.signal
+                print("Toggling audio for: Modified")
+            else:
+                print("No mode selected for audio playback.")
+                return
+
+            if signal is not None:
+                signal.play_audio() 
+                if not self.audio_playing:
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
+                    self.audio_playing = True
+                else:
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
+                    self.audio_playing = False
+            else:
+                print("No audio signal loaded.")
+       
+
+    def switch_mode(self):
+
+        if self.audio_playing:
+            self.toggle_audio_playback()  
+            self.toggle_audio_playback()  
+            print("Switched audio mode during playback.")
+    
+    def handleSliderChange(self, newSignal,fourier):
+        self.signal.set_data(newSignal)
+        self.outputGraph.set_signal(self.signal)
+
+    def hideShowSpectogram(self):
+        self.inputGraph.toggle_spectrogram()
+        self.outputGraph.toggle_spectrogram()
+
+    def toggleScale(self):
+        self.fourierGraph.toggle_audiogram_mode()
+
 
 
 
