@@ -13,7 +13,11 @@ from Main_App.mainStyle import sliderStyle, sliderLabelStyle
 
 class Slider(QWidget):
     newSignalAndFourier = pyqtSignal(object, object)
-    def __init__(self,targetFreq = 20,label = "", min_value=-5, max_value=5, initial_value=0 ):
+    def __init__(self, targetFreq = 20, label = "", min_value=-5, max_value=5, initial_value=0):
+        """
+        signal: [time, amp]
+        """
+        
         super().__init__()
 
         self.sliderFrequency = targetFreq
@@ -68,16 +72,31 @@ class Slider(QWidget):
     #         raise ValueError("no data")
 
     def set_signal(self, new_signal):
+        """
+        signal: [time, amp]
+        """
         self.signal = new_signal
 
     def set_freq(self, new_freq):
+        """
+        new_freq: int
+        """
         self.sliderFrequency = new_freq
 
     def update_label(self, value):
+        """
+        value of slider => not used
+        """
         self.label.setText(value)
 
     # get signal frequencies
     def fft(self, signal):
+        """
+        signal: amp only
+        returned values:
+        positive_freqs, positive_fft_values => positive fft values only [freq, amp]
+        fft_freqs, fft_values => all fft values [freq, amp]
+        """
         # Compute the Fourier Transform
         fft_values = np.fft.fft(signal)
         fft_freqs = np.fft.fftfreq(len(fft_values), self.samping_rate)
@@ -89,6 +108,9 @@ class Slider(QWidget):
         return positive_freqs, positive_fft_values, fft_freqs, fft_values
     
     def ifft(self, signal):
+        """
+        not used
+        """
         pass
 
     # def fft(self, signal):
@@ -111,10 +133,11 @@ class Slider(QWidget):
     # Access and modify the magnitude of a specific frequency
     def modify_frequency_magnitude(self, target_freq , new_magnitude = 5):
         """
-        signal: y-axis
-        # traget_freq: slider label
-        traget_freq: tuble(min freq, max freq)
-        new_magnitude: slider value
+        signal: frequency magnitude "y-axis"
+        traget_freq: slider label (which freqncy will be changed)
+        new_magnitude: slider value (the gain by which the frequency will be changed)
+
+        emits the new signal and its fft as [time, amp] and [freq, mag]
         """
         # Perform FFT
         positive_freqs, positive_fft_values, fft_freqs, fft_values = self.fft(self.signal[1])
