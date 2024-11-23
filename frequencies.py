@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
+from signal_data import Signal
+
 
 # get signal frequencies
 def fourier(signal):
@@ -18,14 +20,14 @@ def fourier(signal):
     # return fft_freqs, fft_values
 
 
-def load_audio(audio_file):
-    # Load audio file using pydub
-    audio = AudioSegment.from_wav(audio_file)
-    samples = np.array(audio.get_array_of_samples())
-    signal = [np.linspace(0, len(samples) / audio.frame_rate, num=len(samples)), samples]
-    return signal
+# def load_audio(audio_file):
+#     # Load audio file using pydub
+#     audio = AudioSegment.from_wav(audio_file)
+#     samples = np.array(audio.get_array_of_samples())
+#     signal = [np.linspace(0, len(samples) / audio.frame_rate, num=len(samples)), samples]
+#     return signal
 
-signal = load_audio("Equalizer/sounds/animal_extended_audio.wav")
+# signal = load_audio("Equalizer/sounds/animal_extended_audio.wav")
 
 # # Synthetic signal
 # time = np.linspace(0, 10, 1000)
@@ -37,11 +39,16 @@ signal = load_audio("Equalizer/sounds/animal_extended_audio.wav")
 #     else:
 #         amp += 1/(i+1)*np.cos(2 * np.pi * i * time)
 
-freq, ampl = fourier(signal[1])
+
+signal = Signal()
+signal.load_signal("eCOOLizer/sounds/animals/grrrrr.wav")
+time, amp = signal.get_data()
+
+freq, ampl = fourier(amp)
 
 # Plot the original signal
 plt.subplot(2, 1, 1)
-plt.plot(signal[0], signal[1])
+plt.plot(time, amp)
 plt.legend()
 plt.title("Original Signal")
 plt.xlabel("Time [s]")
@@ -54,7 +61,7 @@ plt.legend()
 plt.title("Fourier Transform")
 plt.xlabel("Frequency [Hz]")
 plt.ylabel("Magnitude")
-plt.xlim(0, 10)
+plt.xlim(0, 200)
 
 plt.tight_layout()
 plt.show()
