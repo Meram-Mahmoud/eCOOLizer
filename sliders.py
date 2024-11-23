@@ -1,27 +1,25 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QSlider, QLabel, QVBoxLayout, QHBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 import numpy as np
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
 import cmath
 import soundfile as sf
 from signal_data import Signal
+from Main_App.mainStyle import sliderStyle, sliderLabelStyle
+
 
 
 class Slider(QWidget):
-    def __init__(self, min_value=-5, max_value=5, initial_value=0, audio_file=None):
+    newSignalAndFourier = pyqtSignal(object, object)
+    def __init__(self,targetFreq = 20,label = "", min_value=-5, max_value=5, initial_value=0 ):
         super().__init__()
 
-        self.signal = audio_file # signal will be modified before passing to the class
-        # print(audio_file)
-        # self.signal = None
-        # self.sample_rate = None
-        # self.path = audio_file
-        # self.load_signal()
+        self.sliderFrequency = targetFreq
+        self.samping_rate = None
 
-        # time_data, amplitude_data = Signal.get_data()
-        # self.export_modified_audio("Equalizer/sounds/animals_modified.wav")
+        self.signal = None # signal will be modified before passing to the class
 
         # Create a vertical layout for each slider and label
         layout = QVBoxLayout()
@@ -33,15 +31,16 @@ class Slider(QWidget):
         self.slider.setValue(initial_value)
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setTickInterval(1)
+        self.slider.setStyleSheet(sliderStyle)
 
         # Connect the slider's value change event
         # self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude(int(self.label.text()[0]), value))
-        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude((500, 2000), value))
+        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude((self.sliderFrequency-2000, self.sliderFrequency), value))
 
         # Create a label to show the slider value
-        self.label = QLabel(f"Value: {initial_value}")
+        self.label = QLabel(label)
         self.label.setAlignment(Qt.AlignCenter)
-
+        self.label.setStyleSheet(sliderLabelStyle)
         # Add the slider and label to the layout
         layout.addWidget(self.slider)
         layout.addWidget(self.label)
@@ -68,6 +67,12 @@ class Slider(QWidget):
     #     if len(self.signal) == 0:
     #         raise ValueError("no data")
 
+    def set_signal(self, new_signal):
+        self.signal = new_signal
+
+    def set_freq(self, new_freq):
+        self.sliderFrequency = new_freq
+
     def update_label(self, value):
         self.label.setText(value)
 
@@ -75,7 +80,7 @@ class Slider(QWidget):
     def fft(self, signal):
         # Compute the Fourier Transform
         fft_values = np.fft.fft(signal)
-        fft_freqs = np.fft.fftfreq(len(fft_values), 1/6000)
+        fft_freqs = np.fft.fftfreq(len(fft_values), self.samping_rate)
 
         # Only keep the positive half of the frequencies for display
         positive_freqs = fft_freqs[:len(fft_freqs) // 2]
@@ -104,7 +109,7 @@ class Slider(QWidget):
     #     return combined
 
     # Access and modify the magnitude of a specific frequency
-    def modify_frequency_magnitude(self, target_freq, new_magnitude):
+    def modify_frequency_magnitude(self, target_freq , new_magnitude = 5):
         """
         signal: y-axis
         # traget_freq: slider label
@@ -165,7 +170,9 @@ class Slider(QWidget):
         modified_signal = np.fft.ifft(fft_values).real
         self.signal = [self.signal[0], modified_signal]
 
-        return positive_fft_values, modified_signal
+        self.newSignalAndFourier.emit(self.signal, [fft_freqs, fft_values])
+
+        # return positive_fft_values, modified_signal
     
 # # Run the application
 # app = QApplication(sys.argv)
@@ -198,13 +205,13 @@ class Slider(QWidget):
 # main_window.setLayout(layout)
 # main_window.show()
 
-# sys.exit(app.exec_())
-signal = Signal()
-signal.load_signal("eCOOLizer/sounds/animal_extended_audio.wav")
-time, amp = signal.get_data()
-print(time, amp)
+# # sys.exit(app.exec_())
+# signal = Signal()
+# signal.load_signal("eCOOLizer/sounds/animal_extended_audio.wav")
+# time, amp = signal.get_data()
+# print(time, amp)
 
-app = QApplication([])
-slider_widget = Slider(audio_file=[time, amp])
-slider_widget.show()
-app.exec_()
+# app = QApplication([])
+# slider_widget = Slider(audio_file=[time, amp])
+# slider_widget.show()
+# app.exec_()

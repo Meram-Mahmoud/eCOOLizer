@@ -57,9 +57,9 @@ class CineGraph(GraphBase):
         if self.spectrogram_visible:
             self.spectrogram_display.display_spectrogram(self.signal)
             self.spectrogram_display.setMinimumSize(100, 100) 
-            self.splitter.setSizes([max(200, self.width() // 2), max(200, self.width() // 2)])
+            self.splitter.setSizes([max(200, 500), max(200, 500)])
         else:
-            self.splitter.setSizes([max(200, self.width()), 0])
+            self.splitter.setSizes([max(200, 200), 0])
         
         self.spectrogram_display.updateGeometry()
         self.splitter.updateGeometry()
@@ -70,6 +70,7 @@ class CineGraph(GraphBase):
             return
 
         time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
+
         self.plot_graph(time_data, amplitude_data)
 
         window_duration = 1  
