@@ -2,20 +2,15 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QSlider, QLabel, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt, pyqtSignal
 import numpy as np
-import matplotlib.pyplot as plt
-from pydub import AudioSegment
-import cmath
-import soundfile as sf
-from signal_data import Signal
 from Main_App.mainStyle import sliderStyle, sliderLabelStyle
-
-
 
 class Slider(QWidget):
     newSignalAndFourier = pyqtSignal(object, object)
-    def __init__(self, targetFreq = 20, label = "", min_value=-5, max_value=5, initial_value=0):
+    def __init__(self, targetFreq = [], label = "", min_value=-5, max_value=5, initial_value=0):
         """
-        signal: [time, amp]
+        self.signal: fft signal
+        targetFreq: array of bandwidths
+        min_value and max_values will be changed to notice the changes in sound
         """
         
         super().__init__()
@@ -39,7 +34,7 @@ class Slider(QWidget):
 
         # Connect the slider's value change event
         # self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude(int(self.label.text()[0]), value))
-        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude((self.sliderFrequency-2000, self.sliderFrequency), value))
+        self.slider.valueChanged.connect(lambda value: self.modify_frequency_magnitude(self.sliderFrequency, value))
 
         # Create a label to show the slider value
         self.label = QLabel(label)
@@ -51,25 +46,6 @@ class Slider(QWidget):
 
         # Set the layout on this widget
         self.setLayout(layout)
-
-    # ========= Not used, the signal will be loaded for the import file =========
-    # def load_audio(self, audio_file):
-    #     # Load audio file using pydub
-    #     audio = AudioSegment.from_wav(audio_file)
-    #     samples = np.array(audio.get_array_of_samples())
-    #     signal = [np.linspace(0, len(samples) / audio.frame_rate, num=len(samples)), samples]
-    #     return signal
-
-    # def load_signal(self):
-    #     self.signal, self.sample_rate = sf.read(self.path)
-        
-    #     if self.signal.ndim > 1:
-    #         self.signal = self.signal[:, 0]
-
-    #     print(self.signal)
-
-    #     if len(self.signal) == 0:
-    #         raise ValueError("no data")
 
     def set_signal(self, new_signal):
         """
@@ -113,87 +89,37 @@ class Slider(QWidget):
         """
         pass
 
-    # def fft(self, signal):
-    #     n = len(signal)
-    #     if n == 1:
-    #         return signal
-
-    #     # Split the signal into even and odd components
-    #     even = self.fft(signal[0::2])
-    #     odd = self.fft(signal[1::2])
-
-    #     combined = [0] * n
-    #     for k in range(n // 2):
-    #         exp_factor = cmath.exp(-2j * cmath.pi * k / n) * odd[k]
-    #         combined[k] = even[k] + exp_factor
-    #         combined[k + n // 2] = even[k] - exp_factor
-
-    #     return combined
-
     # Access and modify the magnitude of a specific frequency
     def modify_frequency_magnitude(self, target_freq , new_magnitude = 5):
         """
         signal: frequency magnitude "y-axis"
-        traget_freq: slider label (which freqncy will be changed)
+        traget_freq: bandwidths of the slider
         new_magnitude: slider value (the gain by which the frequency will be changed)
 
-        emits the new signal and its fft as [time, amp] and [freq, mag]
+        emits the fft of new signal [freq, mag]
         """
         # Perform FFT
-        positive_freqs, positive_fft_values, fft_freqs, fft_values = self.fft(self.signal[1])
+        # positive_freqs, positive_fft_values, fft_freqs, fft_values = self.fft(self.signal[1])
 
-        # # Find the index of the target frequency
-        # idx = np.where(np.isclose(positive_freqs, target_freq))[0]
+        frequency, magniudes = self.signal[0], self.signal[1]
+        for i in target_freq:
+            indices = np.where((frequency >= i[0]) & (frequency <= i[1]))[0]
 
-        # if idx.size > 0:
-        #     # Set the magnitude at the target frequency
-        #     idx = idx[0]
-        #     # print(len(positive_fft_values))
-        #     print(f'{target_freq} Hz of magnetude {fft_values[idx]}')
-        #     fft_values[idx] = new_magnitude*10 + fft_values[idx]   # Preserve the phase
-        #     print(f'{target_freq} Hz changed by {new_magnitude*10}. New amplitude is {fft_values[idx]}')
-        #     # print(positive_fft_values - new_positive_fft_values)
-        #     # Reconstruct the modified signal with inverse FFT
-        #     modified_signal = np.fft.ifft(fft_values).real
-        #     # self.export_modified_audio("Equalizer/sounds/animals_modified2.wav")
+            if indices.size > 0:
+                # Display original magnitudes
+                print(f"Original magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
 
-        # else:
-        #     print(f"Frequency {target_freq} Hz not found in the FFT output.")
-        #     modified_signal = self.signal[1]
-
-        # # Loop over the target frequency range
-        # for target_freq in range(target_freq[0], target_freq[1] + 1):
-        #     # Find the index of the target frequency
-        #     idx = np.where(np.isclose(positive_freqs, target_freq))[0]
-
-        #     if idx.size > 0:
-        #         idx = idx[0]  # Take the first match (should be unique per frequency)
-        #         print(f'{target_freq} Hz original magnitude {fft_values[idx]}')
-
-        #         # Adjust the magnitude at the target frequency
-        #         fft_values[idx] = new_magnitude * 10 + fft_values[idx]  # Preserve the phase
-        #         print(f'{target_freq} Hz changed by {new_magnitude * 10}. New magnitude: {fft_values[idx]}')
-        #     else:
-        #         print(f"Frequency {target_freq} Hz not found in the FFT output.")
-                
-        # Find indices for the frequencies within the target range
-        indices = np.where((positive_freqs >= target_freq[0]) & (positive_freqs <= target_freq[1]))[0]
-
-        if indices.size > 0:
-            # Display original magnitudes
-            print(f"Original magnitudes at frequencies {positive_freqs[indices]} Hz: {fft_values[indices]}")
-
-            # Adjust magnitudes within the target frequency range
-            fft_values[indices] += new_magnitude * 10  # Apply modification preserving phase
-            print(f"Modified magnitudes at frequencies {positive_freqs[indices]} Hz: {fft_values[indices]}")
-        else:
-            print("No frequencies found in the specified target range.")
+                # Adjust magnitudes within the target frequency range
+                magniudes[indices] += new_magnitude * 10  # Apply modification preserving phase
+                print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
+            else:
+                print("No frequencies found in the specified target range.")
 
         # Reconstruct the modified signal with inverse FFT
-        modified_signal = np.fft.ifft(fft_values).real
-        self.signal = [self.signal[0], modified_signal]
+        # modified_signal = np.fft.ifft(fft_values).real
+        # self.signal = [self.signal[0], modified_signal]
 
-        self.newSignalAndFourier.emit(self.signal, [fft_freqs, fft_values])
+        self.newSignalAndFourier.emit([frequency, magniudes])
 
         # return positive_fft_values, modified_signal
     
