@@ -15,13 +15,21 @@ class SpectrogramDisplay(QWidget):
 
         self.color_map = plt.cm.get_cmap("viridis") 
         self.colorbar = None
+        print("spectogram")
+        print("spectogram")
 
     def display_spectrogram(self, signal):
+        # Inputs: signal (object)
+        # Outputs:
+        #Displays the spectrogram on the canvas.
+       
+        #Calculates the spectrogram data, converts it to dB scale, and plots it.
         if not signal:
             return
 
         freqs, times, spectrogram_data = signal.calculate_spectrogram(chunks=512)
 
+        #spectrogram_db (numpy array): Intensity values in dB, Shape: (chunks//2 + 1, number of windows).
         spectrogram_db = 20 * np.log10(spectrogram_data + 1e-6)
 
         self.ax.clear()

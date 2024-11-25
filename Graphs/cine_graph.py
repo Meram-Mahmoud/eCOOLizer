@@ -32,9 +32,12 @@ class CineGraph(GraphBase):
         self.spectrogram_display.setVisible(False)
 
         self.splitter.setStretchFactor(0, 3) 
-      
+        print("graph")
+        print("graph")
 
     def set_signal(self, signal: Signal):
+        # Inputs: signal (object)
+        # then clears the current graph and plots the new signal
         self.clear()
         self.signal = signal
         self.current_frame = 0  
@@ -48,6 +51,11 @@ class CineGraph(GraphBase):
 
 
     def display_signal(self, time_data, amplitude_data):
+        # Inputs:
+        #time_data (numpy array): Time values, Shape: (number of samples,)
+        #amplitude_data (numpy array): Amplitude values of the signal, Shape: (number of samples,)
+    
+        # then it Plots the time-amplitude signal on the graph.
         self.plot_graph(time_data, amplitude_data)
 
     def toggle_spectrogram(self):
@@ -66,6 +74,7 @@ class CineGraph(GraphBase):
 
         
     def update_plot(self):
+        #Updates the graph with the current frame of the signal.
         if self.signal is None:
             return
 
@@ -73,6 +82,7 @@ class CineGraph(GraphBase):
 
         self.plot_graph(time_data, amplitude_data)
 
+        # Adjust the window to show the last 1 second of the signal
         window_duration = 1  
         end_time = time_data[-1] if len(time_data) > 0 else 0
         start_time = max(0, end_time - window_duration)

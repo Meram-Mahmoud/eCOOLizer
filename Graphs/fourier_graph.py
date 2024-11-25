@@ -13,8 +13,12 @@ class FourierTransformGraph(GraphBase):
         super().__init__(title)
         self.is_audiogram_mode = False
         self.signal = None
+        print("fourier")
+        print("fourier")
 
     def set_signal(self, signal: Signal):
+        # Inputs: signal (object)
+        # Updates the current signal and plots its full FFT
         self.signal = signal
         self.plot_full_fft()
 
@@ -22,7 +26,10 @@ class FourierTransformGraph(GraphBase):
         if not self.signal:
             return
 
+        # Get frequency and magnitude data from the signal's FFT.
         frequencies, magnitudes = self.signal.get_fft_data()
+        # frequencies (1D numpy array): Frequency bins, Shape: (number of bins,).
+        # magnitudes (1D numpy array): Magnitude values of the FFT. Shape: (number of bins,).
 
         if self.is_audiogram_mode:
             freq_bins, thresholds = self.signal.calculate_audiogram(frequencies, magnitudes)
@@ -38,6 +45,11 @@ class FourierTransformGraph(GraphBase):
             
 
     def graph_fit(self, x_data, y_data, is_audiogram_mode=False):
+        #input;
+        # x_data (1D numpy array): X-axis data (frequencies), Shape: (n,).
+        # y_data (1D numpy array): Y-axis data (magnitudes), Shape: (n,).
+
+        # Adjusts the graph's range and limits to fit the data.
         x_min, x_max = min(x_data), max(x_data)
         y_min, y_max = min(y_data), max(y_data)
         
