@@ -43,6 +43,14 @@ class Signal:
        
         # Returns time axis and amplitude values from the start up to end_frame
         return time_axis, self.data[:end_frame]
+    
+
+    def get_time_domain_data(self,end_frame=None):
+        #  dummy timecdomain data
+        time = np.linspace(0, 1, 10)  # numpy array 
+        amplitude = np.sin(2 * np.pi * 5 * time)  # numpy array 
+        return time, amplitude
+
         
 
     def set_data(self, new_data):

@@ -41,7 +41,7 @@ class CineGraph(GraphBase):
         self.clear()
         self.signal = signal
         self.current_frame = 0  
-        time_data, amplitude_data = signal.get_data()
+        time_data, amplitude_data = signal.get_time_domain_data()
         self.plot_widget.setTitle(self.title)
         self.display_signal(time_data, amplitude_data) 
         self.play()
@@ -78,7 +78,8 @@ class CineGraph(GraphBase):
         if self.signal is None:
             return
 
-        time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
+        # time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
+        time_data, amplitude_data = self.signal.get_time_domain_data(end_frame=self.current_frame)
 
         self.plot_graph(time_data, amplitude_data)
 
