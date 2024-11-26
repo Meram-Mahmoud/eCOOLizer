@@ -127,10 +127,26 @@ class Signal:
         return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
     def calculate_spectrogram(self, chunks=512, overlap=256):
+        if self.data is None or self.data.shape[1] < 2:
+             raise ValueError("data not available.")
 
-       time_axis, amplitude = self.get_time_domain_data()
-       freqs, times, spec = spectrogram(amplitude, fs=self.sample_rate, window='hann',nperseg=chunks, noverlap=overlap, scaling='spectrum')
-       return freqs, times, spec
+        step = chunks - overlap
+        num_frames = self.data.shape[0]
+        spectrogram = []
+
+        # Iterate over time windows
+        for start in range(0, num_frames - chunks + 1, step):
+            windowed_magnitudes = self.data[start:start + chunks, 1]  # Magnitudes only
+            spectrogram.append(windowed_magnitudes)
+
+        spectrogram = np.array(spectrogram)  # Transpose for correct shape
+        freqs = self.data[:chunks, 0]  # Frequencies from precomputed FFT
+        times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
+
+        return freqs, times, spectrogram
+    #    time_axis, amplitude = self.get_time_domain_data()
+    #    freqs, times, spec = spectrogram(amplitude, fs=self.sample_rate, window='hann',nperseg=chunks, noverlap=overlap, scaling='spectrum')
+    #    return freqs, times, spec
         
         #manual calc
         # if self.data is None or self.data.shape[1] < 2:
