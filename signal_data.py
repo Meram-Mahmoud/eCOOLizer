@@ -4,7 +4,7 @@ import sounddevice as sd
 #from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="sounds/Uniform.wav"):
+    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  # Have audio samples as a 1D numpy array
         self.sample_rate = None  # Sampling rate of the audio file
@@ -28,8 +28,9 @@ class Signal:
         
         num_samples = len(self.data)
         time_axis = np.linspace(0, num_samples / self.sample_rate, num=num_samples)
-
+        
         self.data = np.column_stack((time_axis, self.data))
+        self.fft_data()
 
     def get_data(self, end_frame=None):
          # Inputs: end_frame, Last frame index to return, Default: full length
@@ -50,29 +51,51 @@ class Signal:
         # return time_axis, self.data[:end_frame]
         return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
-
-    def get_time_domain_data(self,end_frame=None):
-        #  dummy timecdomain data
-        time = np.linspace(0, 1, 10)  # numpy array 
-        amplitude = np.sin(2 * np.pi * 5 * time)  # numpy array 
-        return time, amplitude
-
+    # ifft
+    def get_time_domain_data(self, end_frame=None):
+        # Ensure valid end_frame value
+        if self.data is None:
+            raise ValueError("Fourier data not available.")
         
+        if not end_frame or end_frame > len(self.data):
+            end_frame = len(self.data)  # Use the full length if end_frame is None or exceeds bounds
 
-    def set_data(self, new_data):
+        # Validate the structure of self.data
+        if self.data.shape[1] < 3:
+            raise ValueError("Expected at least three columns in self.data for frequency, magnitude, and phase.")
+        
+        frequencies = self.data[:end_frame, 0]
+        magnitudes = self.data[:end_frame, 1]
+        phases = self.data[:end_frame, 2]
+        
+        # Reconstruct the complex frequency spectrum
+        complex_spectrum = magnitudes * np.exp(1j * phases)
+        
+        # Perform the inverse FFT
+        amplitude = np.fft.irfft(complex_spectrum, n=(end_frame - 1) * 2)
+        
+        # Generate the time axis
+        time_axis = np.linspace(0, len(amplitude) / self.sample_rate, num=len(amplitude))
+
+        return time_axis, amplitude
+
+    def set_data(self, new_data, end_frame = None):
         # Inputs: new_data (tuple): new_data[1] (new amplitude values.) is the new signal data
         # Outputs:
         # Updates self.data (numpy array), Shape: (number of samples,)
-        self.data = new_data[1]
+        if not end_frame or end_frame > len(self.data):
+            end_frame = len(self.data)  # Use the full length if end_frame is None or exceeds bounds
+
+        self.data[:end_frame, 1] = new_data[1]
 
         if len(new_data[0]) != len(new_data[1]):
             raise ValueError("Time and amplitude arrays must be the same length.")
 
-        self.data = np.column_stack(new_data)
+        # self.data = np.column_stack(new_data)
 
         print(self.data)
 
-    def get_fft_data(self, end_frame=None):
+    def fft_data(self, end_frame=None):
         # Inputs: end_frame , The end index for FFT computation
         # Outputs:
         #frequencies ( 1D numpy array): FFT frequency values, Shape: (end_frame//2 + 1,)
@@ -95,9 +118,13 @@ class Signal:
         amplitude = self.data[:end_frame, 1]
         frequencies = np.fft.rfftfreq(end_frame, 1 / self.sample_rate)
         magnitudes = np.abs(np.fft.rfft(amplitude))
+        phase = np.angle(np.fft.rfft(amplitude))
         
-        
-        return frequencies, magnitudes
+        self.data = np.column_stack((frequencies, magnitudes, phase))
+        # return frequencies, magnitudes
+
+    def get_fft_data(self, end_frame = None):
+        return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
     def calculate_spectrogram(self, chunks=512, overlap=256):
         # Inputs:
@@ -198,9 +225,10 @@ class Signal:
         if end_frame is None:
             end_frame = len(self.data)
         
-        # audio_chunk = self.data[start_frame:end_frame] # Extract the audio chunk to play
-        audio_chunk = self.data[start_frame:end_frame, 1]
-        
+        # audio_chunk = self.data[start_frame:end_frame] # Extract the audio chunk to play        
+        time, amplitude = self.get_time_domain_data()
+        audio_chunk = amplitude[start_frame:end_frame]
+
         if not self.playing:
             sd.play(audio_chunk, self.sample_rate)
             self.playing = True

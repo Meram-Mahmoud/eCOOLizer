@@ -5,7 +5,7 @@ import numpy as np
 from Main_App.mainStyle import sliderStyle, sliderLabelStyle
 
 class Slider(QWidget):
-    newSignalAndFourier = pyqtSignal(object, object)
+    newSignalAndFourier = pyqtSignal(object)
     def __init__(self, targetFreq = [], label = "", min_value=-5, max_value=5, initial_value=0):
         """
         self.signal: fft signal
@@ -110,7 +110,7 @@ class Slider(QWidget):
                 print(f"Original magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
 
                 # Adjust magnitudes within the target frequency range
-                magniudes[indices] += new_magnitude * 10  # Apply modification preserving phase
+                magniudes[indices] += new_magnitude * 1000  # Apply modification preserving phase
                 print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
             else:
                 print("No frequencies found in the specified target range.")

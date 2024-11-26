@@ -44,7 +44,8 @@ class eCOOLizer(QMainWindow):
         self.audio_playing=False
         self.currentMode = QPushButton()
         self.sliderPanel = None
-        self.signal=Signal()
+        self.signal_input=Signal()
+        self.signal_output=Signal()
 
         print("initialized")
     def createUI(self):
@@ -112,7 +113,7 @@ class eCOOLizer(QMainWindow):
         self.splitter.setStretchFactor(1, 1)  
 
 
-        self.sliderPanel = self.createSliderPanel("default")
+        self.sliderPanel = self.createUniformSliderPanel("default")
         print("UI elements Created")
 
     # TESTING FUNCTION
@@ -131,17 +132,17 @@ class eCOOLizer(QMainWindow):
         if workspaceLayout:
             workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
-    def createSliderPanel(self, mode = "default"):
+    def createUniformSliderPanel(self, mode = "default"):
         sliderPanelLayout = QHBoxLayout() 
         sliderPanelLayout.setAlignment(Qt.AlignCenter) 
         sliderPanelLayout.setSpacing(20)        
         if mode == "default":
             for ind in range(1,11):
-                slider = Slider(label=f"{ind*2000} HZ")
-                slider.set_freq(ind * 2000)
+                slider = Slider(label=f"{ind*100+1000} HZ")
+                slider.set_freq([[ind*100+1000, (ind+1)*100+1000]])
                 # print(self.signal.get_data())
-                slider.set_signal(self.signal.get_data())
-                slider.samping_rate = self.signal.sample_rate
+                slider.set_signal(self.signal_output.get_fft_data())
+                slider.samping_rate = self.signal_output.sample_rate
                 slider.newSignalAndFourier.connect(self.handleSliderChange)
                 sliderPanelLayout.addWidget(slider)
         # elif mode == "music":
@@ -373,19 +374,20 @@ class eCOOLizer(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
         if file_path:
             # self.signal = Signal()
-            self.signal.load_signal(file_path)
+            self.signal_input.load_signal(file_path)
+            self.signal_output.load_signal(file_path)
             file_name = os.path.basename(file_path)
             self.audioLoadedName.setText(f"{file_name}")
 
-            self.inputGraph.set_signal(self.signal)
-            self.outputGraph.set_signal(self.signal)
+            self.inputGraph.set_signal(self.signal_input)
+            self.outputGraph.set_signal(self.signal_output)
             
 
             self.inputGraph.clear()
             self.outputGraph.clear()
             self.inputGraph.timer.start(self.inputGraph.playSpeed)
 
-            self.fourierGraph.set_signal(self.signal)
+            self.fourierGraph.set_signal(self.signal_output)
 
     def togglePlayPause(self):
         if self.is_playing:
@@ -443,9 +445,10 @@ class eCOOLizer(QMainWindow):
             self.toggle_audio_playback()  
             print("Switched audio mode during playback.")
     
-    def handleSliderChange(self, newSignal,fourier):
-        self.signal.set_data(newSignal)
-        self.outputGraph.set_signal(self.signal)
+    def handleSliderChange(self, newSignal):
+        self.signal_output.set_data(newSignal)
+        self.outputGraph.set_signal(self.signal_output)
+        self.fourierGraph.set_signal(self.signal_output)
 
     def hideShowSpectogram(self):
         is_visible = not self.spectrogram_display.isVisible()
