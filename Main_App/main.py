@@ -95,10 +95,10 @@ class eCOOLizer(QMainWindow):
         self.fourierGraph=FourierTransformGraph("Fourier Graph")
 
         self.buttonsGroup = QWidget()
-        self.defaultModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/DefaultSelected.png"),"")
-        self.musicModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Music.png"),"")
-        self.animalModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
+        self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
+        self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
+        self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
+        self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
 
         self.sliderPanel = self.createSliderPanel("default")
         print("UI elements Created")
@@ -394,7 +394,7 @@ class eCOOLizer(QMainWindow):
 
     def togglePlayPause(self):
         if self.is_playing:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
             self.is_playing = False
             print("Playback paused") 
             
@@ -402,7 +402,7 @@ class eCOOLizer(QMainWindow):
             self.outputGraph.pause()
 
         else:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
             self.is_playing = True
             print("Playback started")
             
@@ -420,10 +420,10 @@ class eCOOLizer(QMainWindow):
 
     def toggle_audio_playback(self):
             if self.originalModeRadio.isChecked():
-                signal = self.inputGraph.signal
+                signal = self.signal_input
                 print("Toggling audio for: Original")
             elif self.modifiedModeRadio.isChecked():
-                signal = self.outputGraph.signal
+                signal = self.signal_output
                 print("Toggling audio for: Modified")
             else:
                 print("No mode selected for audio playback.")
@@ -452,6 +452,11 @@ class eCOOLizer(QMainWindow):
         self.signal_output.set_data(newSignal)
         self.outputGraph.set_signal(self.signal_output)
         self.fourierGraph.set_signal(self.signal_output)
+
+        self.inputGraph.set_signal(self.signal_input)
+        self.outputGraph.timer.start(self.outputGraph.playSpeed)
+        
+        self.switch_mode()
 
     def hideShowSpectogram(self):
         is_visible = not self.spectrogram_display.isVisible()

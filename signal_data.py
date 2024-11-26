@@ -4,7 +4,7 @@ import sounddevice as sd
 #from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
+    def __init__(self, file_path="sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  # Have audio samples as a 1D numpy array
         self.sample_rate = None  # Sampling rate of the audio file

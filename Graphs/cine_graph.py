@@ -121,11 +121,27 @@ class CineGraph(GraphBase):
 
     def reset(self):
         # sd.stop()
+        
         self.current_frame = 0
+        self.is_playing = True
         self.update_plot()
+        
+        
         # sd.play(self.signal.data, self.signal.sample_rate, loop=False) 
        
+    def set_play_speed(self, value):
+        self.playSpeed = max(50, min(500, 500 - value))
+        # self.playSpeed=value
+        if self.is_playing:
+            self.timer.start(self.playSpeed) 
 
+    def link_with(self, other):
+        self.plot_widget.setXLink(other.plot_widget)
+        # self.plot_widget.setYLink(other.plot_widget)
+        self.linked_graph = other
+        other.linked_graph = self
+        other.current_frame = self.current_frame
+        self.current_frame=other.current_frame
        
      # def update_plot(self):
     #     if self.signal is None or not self.is_playing:
@@ -183,19 +199,7 @@ class CineGraph(GraphBase):
     #     self.play()
 
 
-    def set_play_speed(self, value):
-        self.playSpeed = max(50, min(500, 500 - value))
-        # self.playSpeed=value
-        if self.is_playing:
-            self.timer.start(self.playSpeed) 
-
-    def link_with(self, other):
-        self.plot_widget.setXLink(other.plot_widget)
-        self.plot_widget.setYLink(other.plot_widget)
-        self.linked_graph = other
-        other.linked_graph = self
-        other.current_frame = self.current_frame
-        self.current_frame=other.current_frame
+   
 
 
 #test 

@@ -110,7 +110,7 @@ class Slider(QWidget):
                 print(f"Original magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
 
                 # Adjust magnitudes within the target frequency range
-                magniudes[indices] += new_magnitude * 5000  # Apply modification preserving phase
+                magniudes[indices] += new_magnitude * 100  # Apply modification preserving phase
                 print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magniudes[indices]}")
             else:
                 print("No frequencies found in the specified target range.")
