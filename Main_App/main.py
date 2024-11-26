@@ -7,7 +7,7 @@ import numpy as np
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, QVBoxLayout, QWidget, QSlider,QFileDialog,QRadioButton, QButtonGroup, \
-    QPushButton, QHBoxLayout
+    QPushButton, QHBoxLayout,QSplitter
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
 
@@ -18,6 +18,7 @@ from Graphs.cine_graph import CineGraph
 from Graphs.fourier_graph import FourierTransformGraph
 from signal_data import Signal
 from sliders import Slider
+from Graphs.spectrogram import SpectrogramDisplay
 
 class eCOOLizer(QMainWindow):
     def __init__(self):
@@ -70,6 +71,7 @@ class eCOOLizer(QMainWindow):
         self.toggleAudiogram=QPushButton("audigram")
 
 
+
         self.originalModeRadio = QRadioButton("Original")
         self.modifiedModeRadio = QRadioButton("Modified")
         self.originalModeRadio.setChecked(True)
@@ -96,6 +98,18 @@ class eCOOLizer(QMainWindow):
         self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
         self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
         self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
+
+
+        
+        self.spectrogram_display = SpectrogramDisplay()
+        self.spectrogram_display.setVisible(False)
+
+        # Create Splitter
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter.addWidget(self.inputGraph)
+        self.splitter.addWidget(self.spectrogram_display)
+        self.splitter.setStretchFactor(0, 3)  # Give more space to the graph
+        self.splitter.setStretchFactor(1, 1)  
 
 
         self.sliderPanel = self.createSliderPanel("default")
@@ -320,6 +334,7 @@ class eCOOLizer(QMainWindow):
         topBar.addStretch()
 
         workspace = QVBoxLayout()
+        workspace.addWidget(self.splitter)
 
         graphsLayout = QVBoxLayout()
 
@@ -376,7 +391,7 @@ class eCOOLizer(QMainWindow):
         if self.is_playing:
             self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
             self.is_playing = False
-            print("Playback paused")
+            print("Playback paused") 
             
             self.inputGraph.pause()
             self.outputGraph.pause()
@@ -433,8 +448,20 @@ class eCOOLizer(QMainWindow):
         self.outputGraph.set_signal(self.signal)
 
     def hideShowSpectogram(self):
-        self.inputGraph.toggle_spectrogram()
-        self.outputGraph.toggle_spectrogram()
+        is_visible = not self.spectrogram_display.isVisible()
+        self.spectrogram_display.setVisible(is_visible)
+
+        if is_visible:
+            print("Spectrogram displayed")
+            if self.inputGraph.signal:
+                self.spectrogram_display.display_spectrogram(self.inputGraph.signal)
+            self.splitter.setSizes([500, 300])  # Adjust sizes
+        else:
+            print("Spectrogram hidden")
+            self.splitter.setSizes([800, 0])  # Hide spectrogram
+
+        self.splitter.updateGeometry()
+
 
     def toggleScale(self):
         self.fourierGraph.toggle_audiogram_mode()

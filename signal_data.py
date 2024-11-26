@@ -25,6 +25,11 @@ class Signal:
 
         if len(self.data) == 0:
             raise ValueError("no data")
+        
+        num_samples = len(self.data)
+        time_axis = np.linspace(0, num_samples / self.sample_rate, num=num_samples)
+
+        self.data = np.column_stack((time_axis, self.data))
 
     def get_data(self, end_frame=None):
          # Inputs: end_frame, Last frame index to return, Default: full length
@@ -39,10 +44,11 @@ class Signal:
             end_frame = len(self.data)
 
         #time axis is calculated using the sample rate and the number of frames
-        time_axis = np.linspace(0, end_frame / self.sample_rate, num=end_frame)
+        # time_axis = np.linspace(0, end_frame / self.sample_rate, num=end_frame)
        
         # Returns time axis and amplitude values from the start up to end_frame
-        return time_axis, self.data[:end_frame]
+        # return time_axis, self.data[:end_frame]
+        return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
 
     def get_time_domain_data(self,end_frame=None):
@@ -58,6 +64,12 @@ class Signal:
         # Outputs:
         # Updates self.data (numpy array), Shape: (number of samples,)
         self.data = new_data[1]
+
+        if len(new_data[0]) != len(new_data[1]):
+            raise ValueError("Time and amplitude arrays must be the same length.")
+
+        self.data = np.column_stack(new_data)
+
         print(self.data)
 
     def get_fft_data(self, end_frame=None):
@@ -77,8 +89,14 @@ class Signal:
         if end_frame is None or end_frame > len(self.data):
             end_frame = len(self.data)
 
+        # frequencies = np.fft.rfftfreq(end_frame, 1 / self.sample_rate)
+        # magnitudes = np.abs(np.fft.rfft(self.data[:end_frame]))
+
+        amplitude = self.data[:end_frame, 1]
         frequencies = np.fft.rfftfreq(end_frame, 1 / self.sample_rate)
-        magnitudes = np.abs(np.fft.rfft(self.data[:end_frame]))
+        magnitudes = np.abs(np.fft.rfft(amplitude))
+        
+        
         return frequencies, magnitudes
     
     def calculate_spectrogram(self, chunks=512, overlap=256):
@@ -99,7 +117,8 @@ class Signal:
         spectrogram = []  # Store the FFT magnitudes for each time window.
 
         for start in range(0, len(self.data) - chunks + 1, step):
-            segment = self.data[start:start + chunks]
+            # segment = self.data[start:start + chunks]
+            segment = self.data[start:start + chunks, 1]
             windowed_segment = segment * np.hanning(chunks)
             spectrum = np.fft.rfft(windowed_segment)  # Perform FFT on the chunk
             spectrogram.append(np.abs(spectrum)) # Magnitude of the spectrum
@@ -116,7 +135,7 @@ class Signal:
         #                                          window='hann', nperseg=window_size, 
         #                                          noverlap=overlap, scaling='spectrum')
 
-        return freqs, times, spectrogram
+        # return freqs, times, spectrogram
 
     def calculate_audiogram(self, frequencies, magnitudes):
         # Inputs:
@@ -133,6 +152,18 @@ class Signal:
             threshold = 120 - min(120, 20 * np.log10(np.abs(magnitude) + 1e-3))
             thresholds.append(threshold)
         return freq_bins, thresholds
+    
+        # valid_indices = frequencies > 0
+        # frequencies = frequencies[valid_indices]
+        # magnitudes = magnitudes[valid_indices]
+        
+        # # Convert to log scale for frequencies
+        # log_frequencies = np.log10(frequencies)
+        
+        # # Convert magnitudes to decibels
+        # thresholds = 120 - np.minimum(120, 20 * np.log10(magnitudes + 1e-6))
+        
+        # return log_frequencies, thresholds
     
     
     
@@ -167,7 +198,8 @@ class Signal:
         if end_frame is None:
             end_frame = len(self.data)
         
-        audio_chunk = self.data[start_frame:end_frame] # Extract the audio chunk to play
+        # audio_chunk = self.data[start_frame:end_frame] # Extract the audio chunk to play
+        audio_chunk = self.data[start_frame:end_frame, 1]
         
         if not self.playing:
             sd.play(audio_chunk, self.sample_rate)
