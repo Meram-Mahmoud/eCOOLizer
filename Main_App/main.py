@@ -95,25 +95,12 @@ class eCOOLizer(QMainWindow):
         self.fourierGraph=FourierTransformGraph("Fourier Graph")
 
         self.buttonsGroup = QWidget()
-        self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
-        self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
-        self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
+        self.defaultModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/DefaultSelected.png"),"")
+        self.musicModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Music.png"),"")
+        self.animalModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Animal.png"),"")
+        self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
 
-
-        
-        self.spectrogram_display = SpectrogramDisplay()
-        self.spectrogram_display.setVisible(False)
-
-        # Create Splitter
-        self.splitter = QSplitter(Qt.Horizontal)
-        self.splitter.addWidget(self.inputGraph)
-        self.splitter.addWidget(self.spectrogram_display)
-        self.splitter.setStretchFactor(0, 3)  # Give more space to the graph
-        self.splitter.setStretchFactor(1, 1)  
-
-
-        self.sliderPanel = self.createUniformSliderPanel("default")
+        self.sliderPanel = self.createSliderPanel("default")
         print("UI elements Created")
 
     # TESTING FUNCTION
@@ -132,41 +119,58 @@ class eCOOLizer(QMainWindow):
         if workspaceLayout:
             workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
-    def createUniformSliderPanel(self, mode = "default"):
+    def createSliderPanel(self, mode = "default"):
         sliderPanelLayout = QHBoxLayout() 
         sliderPanelLayout.setAlignment(Qt.AlignCenter) 
         sliderPanelLayout.setSpacing(20)        
         if mode == "default":
+        
             for ind in range(1,11):
                 slider = Slider(label=f"{ind*100+1000} HZ")
                 slider.set_freq([[ind*100+1000, (ind+1)*100+1000]])
+
                 # print(self.signal.get_data())
                 slider.set_signal(self.signal_output.get_fft_data())
                 slider.samping_rate = self.signal_output.sample_rate
                 slider.newSignalAndFourier.connect(self.handleSliderChange)
                 sliderPanelLayout.addWidget(slider)
-        # elif mode == "music":
-        #     dogSlider = Slider("dog")
-        #     dogSlider.set_freq(2000)
-        #     dogSlider.set_signal(self.signal.get_data())
-        #     dogSlider.samping_rate = self.signal.sample_rate
-        #     dogSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-              
-            
-        #     catSlider = Slider("cat")
-        #     catSlider.set_freq(3000)
-        #     # print(self.signal.get_data())
-        #     catSlider.set_signal(self.signal.get_data())
-        #     catSlider.samping_rate = self.signal.sample_rate
-        #     catSlider.newSignalAndFourier.connect(self.handleSliderChange)
-            
-        #     # print(self.signal.get_data())
-        #     birdSlider.set_signal(self.signal.get_data())
-        #     birdSlider.samping_rate = self.signal.sample_rate
-        #     birdSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-        #     birdSlider = Slider("bird")
-        #     birdSlider.set_freq(4000)
-        #     # print(self.signal.get_data())
+       
+        if mode == "animal":
+             # ==== Cat ====
+            slider = Slider(label="Cat")
+            slider.set_freq([[2000, 4000]])
+            # print(self.signal.get_data())
+            slider.set_signal(self.signal_output.get_fft_data())
+            slider.samping_rate = self.signal_output.sample_rate
+            slider.newSignalAndFourier.connect(self.handleSliderChange)
+            sliderPanelLayout.addWidget(slider)
+
+            # === Dog ===
+            slider = Slider(label="Dog")
+            slider.set_freq([[1000, 3000]])
+            # print(self.signal.get_data())
+            slider.set_signal(self.signal_output.get_fft_data())
+            slider.samping_rate = self.signal_output.sample_rate
+            slider.newSignalAndFourier.connect(self.handleSliderChange)
+            sliderPanelLayout.addWidget(slider)
+
+            # === Bird === 
+            slider = Slider(label="Bird")
+            slider.set_freq([[3000, 5000]])
+            # print(self.signal.get_data())
+            slider.set_signal(self.signal_output.get_fft_data())
+            slider.samping_rate = self.signal_output.sample_rate
+            slider.newSignalAndFourier.connect(self.handleSliderChange)
+            sliderPanelLayout.addWidget(slider)
+
+            # === Lion ===
+            slider = Slider(label="Lion")
+            slider.set_freq([[500, 1500]])
+            # print(self.signal.get_data())
+            slider.set_signal(self.signal_output.get_fft_data())
+            slider.samping_rate = self.signal_output.sample_rate
+            slider.newSignalAndFourier.connect(self.handleSliderChange)
+            sliderPanelLayout.addWidget(slider)
 
         # elif mode == "music":
         #     triangleSlider = Slider("triangle")
@@ -183,7 +187,6 @@ class eCOOLizer(QMainWindow):
               
               
 
-            sliderPanelLayout.addWidget(slider)
         # Create a QWidget to hold the slider panel layout and return it
         sliderPanelWidget = QWidget()
         sliderPanelWidget.setLayout(sliderPanelLayout)
@@ -290,27 +293,27 @@ class eCOOLizer(QMainWindow):
         if button != self.currentMode:
             match button:
                 case self.defaultModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
+                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/DefaultSelected.png"))
                     self.updateSliderPanel("default")  # Change the number of sliders for Default mode
                 case self.musicModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
+                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/MusicSelected.png"))
                     self.updateSliderPanel("music")  # Change the number of sliders for Music mode
                 case self.animalModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
+                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/AnimalSelected.png"))
                     self.updateSliderPanel("animal")  # Change the number of sliders for Animal mode
                 case self.ecgModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/EcgSelected.png"))
+                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/EcgSelected.png"))
                     self.updateSliderPanel("ecg")  # Change the number of sliders for ECG mode
 
             match self.currentMode:
                 case self.defaultModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Default.png"))
+                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Default.png"))
                 case self.musicModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Music.png"))
+                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Music.png"))
                 case self.animalModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Animal.png"))
+                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Animal.png"))
                 case self.ecgModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Ecg.png"))
+                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Ecg.png"))
 
             self.currentMode.setIconSize(button.sizeHint())
             button.setIconSize(button.sizeHint() * 1.5)
@@ -335,7 +338,7 @@ class eCOOLizer(QMainWindow):
         topBar.addStretch()
 
         workspace = QVBoxLayout()
-        workspace.addWidget(self.splitter)
+        # workspace.addWidget(self.splitter)
 
         graphsLayout = QVBoxLayout()
 
