@@ -1,12 +1,12 @@
 import numpy as np
 import soundfile as sf
 import sounddevice as sd
-#from scipy.signal import spectrogram
+from scipy.signal import spectrogram
 
 class Signal:
     def __init__(self, file_path="sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
-        self.data = None  # Have audio samples as a 1D numpy array
+        self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
         self.file_path = file_path
         self.playing=False
@@ -127,6 +127,30 @@ class Signal:
         return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
     def calculate_spectrogram(self, chunks=512, overlap=256):
+
+       time_axis, amplitude = self.get_time_domain_data()
+       freqs, times, spec = spectrogram(amplitude, fs=self.sample_rate, window='hann',nperseg=chunks, noverlap=overlap, scaling='spectrum')
+       return freqs, times, spec
+        
+        #manual calc
+        # if self.data is None or self.data.shape[1] < 2:
+        #     raise ValueError("data not available.")
+
+        # step = chunks - overlap
+        # num_frames = self.data.shape[0]
+        # spectrogram = []
+
+        # for start in range(0, num_frames - chunks + 1, step):
+        #     windowed_magnitudes = self.data[start:start + chunks, 1] 
+        #     spectrogram.append(windowed_magnitudes)
+
+        # spectrogram = np.array(spectrogram)
+        # freqs = self.data[:chunks, 0] 
+        # times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
+
+        # return freqs, times, spectrogram
+
+        #old 
         # Inputs:
         #chunks (int): FFT window size
         #overlap (int): Overlap between chunks
@@ -137,32 +161,25 @@ class Signal:
     
         #spectrogram is calculated by applying FFT to overlapping chunks of the signal
    
-        if self.data is None:
-            raise ValueError("Signal data not loaded.")
+        # if self.data is None:
+        #     raise ValueError("Signal data not loaded.")
 
-        step = chunks - overlap  # Step size between overlapping windows.
-        spectrogram = []  # Store the FFT magnitudes for each time window.
+        # step = chunks - overlap  # Step size between overlapping windows.
+        # spectrogram = []  # Store the FFT magnitudes for each time window.
 
-        for start in range(0, len(self.data) - chunks + 1, step):
-            # segment = self.data[start:start + chunks]
-            segment = self.data[start:start + chunks, 1]
-            windowed_segment = segment * np.hanning(chunks)
-            spectrum = np.fft.rfft(windowed_segment)  # Perform FFT on the chunk
-            spectrogram.append(np.abs(spectrum)) # Magnitude of the spectrum
+        # for start in range(0, len(self.data) - chunks + 1, step):
+        #     # segment = self.data[start:start + chunks]
+        #     segment = self.data[start:start + chunks, 1]
+        #     windowed_segment = segment * np.hanning(chunks)
+        #     spectrum = np.fft.rfft(windowed_segment)  # Perform FFT on the chunk
+        #     spectrogram.append(np.abs(spectrum)) # Magnitude of the spectrum
 
-        spectrogram = np.array(spectrogram).T
-        freqs = np.fft.rfftfreq(chunks, 1 / self.sample_rate)
-        times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
-
-        return freqs, times, spectrogram
-
-
-            
-        # freqs, times, spectrogram = spectrogram(self.data, fs=self.sample_rate, 
-        #                                          window='hann', nperseg=window_size, 
-        #                                          noverlap=overlap, scaling='spectrum')
+        # spectrogram = np.array(spectrogram).T
+        # freqs = np.fft.rfftfreq(chunks, 1 / self.sample_rate)
+        # times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
 
         # return freqs, times, spectrogram
+
 
     def calculate_audiogram(self, frequencies, magnitudes):
         # Inputs:

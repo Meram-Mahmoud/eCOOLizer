@@ -6,11 +6,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs'
 import numpy as np
 import pyqtgraph as pg
 from PyQt5.QtCore import QTimer,Qt
-from .BaseGraph import GraphBase
+from BaseGraph import GraphBase
 from signal_data import Signal
 import sounddevice as sd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QFileDialog,QSlider,QSplitter
-from .spectrogram import SpectrogramDisplay
+from spectrogram import SpectrogramDisplay
 
 class CineGraph(GraphBase):
     def __init__(self, title="Cine Viewer"):
