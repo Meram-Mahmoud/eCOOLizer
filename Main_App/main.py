@@ -332,9 +332,24 @@ class eCOOLizer(QMainWindow):
         # print("Layout is Set")
 
     def load_signal(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg *.csv)")
         if file_path:
-            # self.signal = Signal()
+            file_extension = os.path.splitext(file_path)[-1].lower()  # Get the file extension in lowercase
+            if file_extension == '.csv':
+                self.signal_input.load_signal_from_csv(file_path)
+                self.signal_output.load_signal_from_csv(file_path)
+                file_name = os.path.basename(file_path)
+                # self.audioLoadedName.setText(f"{file_name}")
+
+                self.inputGraph.set_signal(self.signal_input)
+                self.outputGraph.set_signal(self.signal_output)
+
+                self.inputGraph.clear()
+                self.outputGraph.clear()
+                self.inputGraph.timer.start(self.inputGraph.playSpeed)
+
+                self.fourierGraph.set_signal(self.signal_output)
+        else:
             self.signal_input.load_signal(file_path)
             self.signal_output.load_signal(file_path)
             file_name = os.path.basename(file_path)
