@@ -15,8 +15,8 @@ class SpectrogramDisplay(QWidget):
 
         self.color_map = plt.cm.get_cmap("viridis") 
         self.colorbar = None
-        print("spectogram")
-        print("spectogram")
+        # print("spectogram")
+        # print("spectogram")
 
     def display_spectrogram(self, signal):
         # Inputs: signal (object)

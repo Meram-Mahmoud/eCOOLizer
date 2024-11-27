@@ -13,8 +13,8 @@ class FourierTransformGraph(GraphBase):
         super().__init__(title)
         self.is_audiogram_mode = False
         self.signal = None
-        print("fourier")
-        print("fourier")
+        # print("fourier")
+        # print("fourier")
 
     def set_signal(self, signal: Signal):
         # Inputs: signal (object)

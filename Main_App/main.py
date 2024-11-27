@@ -43,10 +43,10 @@ class eCOOLizer(QMainWindow):
         self.audio_playing=False
         self.currentMode = QPushButton()
         self.sliderPanel = None
-        self.signal_input=Signal()
-        self.signal_output=Signal()
-
+        self.signal_input = Signal()
+        self.signal_output = Signal()
         print("initialized")
+
     def createUI(self):
         self.createUIElements()
         self.setUI()
@@ -95,7 +95,7 @@ class eCOOLizer(QMainWindow):
         self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
 
         self.sliderPanel = self.createSliderPanel("default")
-        print("UI elements Created")
+        # print("UI elements Created")
 
     # TESTING FUNCTION
     def updateSliderPanel(self, mode = "default"):
@@ -140,90 +140,23 @@ class eCOOLizer(QMainWindow):
             return self.contorls(names, ranges)
 
         elif mode == "animal":
-            names = ["Cat", "Dog", "Bird", "Lion"]
-            ranges = [[[64, 500]], [[500, 1010]], [[1010, 2010]], [[2010, 8000]]]
+            # names = ["Cat", "Dog", "Bird", "Lion"]
+            # ranges = [[[0, 4000]], [[50, 2000]], [[1800, 2600]], [[0, 500]]]
+            names = ["Dog", "Wolve", "Crow", "Bat"]
+            ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
             return self.contorls(names, ranges)
         
         elif mode == "music":
-            names = ["guitar","piano","Triangle","trombone","Xylophone"]
-            ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
+            # names = ["guitar","piano","Triangle","trombone","Xylophone"]
+            # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
+            names = ["Guitar", "Flute", "Harmonica", "Xylophone"]
+            ranges = [[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
             return self.contorls(names, ranges)
 
         elif mode == "ecg":
-            pass
-
-
-    # def createSliderPanel(self, mode = "default"):
-    #     sliderPanelLayout = QHBoxLayout() 
-    #     sliderPanelLayout.setAlignment(Qt.AlignCenter) 
-    #     sliderPanelLayout.setSpacing(20)        
-    #     if mode == "default":
-        
-    #         for ind in range(1,11):
-    #             slider = Slider(label=f"{ind*100+1000} HZ")
-    #             slider.set_freq([[ind*100+1000, (ind+1)*100+1000]])
-
-    #             # print(self.signal.get_data())
-    #             slider.set_signal(self.signal_output.get_fft_data())
-    #             slider.samping_rate = self.signal_output.sample_rate
-    #             slider.newSignalAndFourier.connect(self.handleSliderChange)
-    #             sliderPanelLayout.addWidget(slider)
-       
-    #     if mode == "animal":
-    #          # ==== Cat ====
-    #         slider = Slider(label="Cat")
-    #         slider.set_freq([[64, 500]])
-    #         # print(self.signal.get_data())
-    #         slider.set_signal(self.signal_output.get_fft_data())
-    #         slider.samping_rate = self.signal_output.sample_rate
-    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
-    #         sliderPanelLayout.addWidget(slider)
-
-    #         # === Dog ===
-    #         slider = Slider(label="Dog")
-    #         slider.set_freq([[500, 1010]])
-    #         # print(self.signal.get_data())
-    #         slider.set_signal(self.signal_output.get_fft_data())
-    #         slider.samping_rate = self.signal_output.sample_rate
-    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
-    #         sliderPanelLayout.addWidget(slider)
-
-    #         # === Bird === 
-    #         slider = Slider(label="Bird")
-    #         slider.set_freq([[1010, 2010]])
-    #         # print(self.signal.get_data())
-    #         slider.set_signal(self.signal_output.get_fft_data())
-    #         slider.samping_rate = self.signal_output.sample_rate
-    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
-    #         sliderPanelLayout.addWidget(slider)
-
-    #         # === Lion ===
-    #         slider = Slider(label="Lion")
-    #         slider.set_freq([[2010, 8000]])
-    #         # print(self.signal.get_data())
-    #         slider.set_signal(self.signal_output.get_fft_data())
-    #         slider.samping_rate = self.signal_output.sample_rate
-    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
-    #         sliderPanelLayout.addWidget(slider)
-
-    #     # elif mode == "music":
-    #     #     triangleSlider = Slider("triangle")
-    #     #     triangleSlider.set_freq(11000)
-    #     #     triangleSlider.set_signal(self.signal.get_data())
-    #     #     triangleSlider.samping_rate = self.signal.sample_rate
-    #     #     triangleSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-            
-    #     #     pianoSlider = Slider("dog")
-    #     #     pianoSlider.set_freq(300)
-    #     #     pianoSlider.set_signal(self.signal.get_data())
-    #     #     pianoSlider.samping_rate = self.signal.sample_rate
-    #     #     pianoSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-              
-    #     # Create a QWidget to hold the slider panel layout and return it
-    #     sliderPanelWidget = QWidget()
-    #     sliderPanelWidget.setLayout(sliderPanelLayout)
-
-    #     return sliderPanelWidget
+            names = []
+            ranges = []
+            return self.contorls(names, ranges)
 
     def plotDummyData(self):
         if not hasattr(self, 'time'):
@@ -255,7 +188,7 @@ class eCOOLizer(QMainWindow):
 
     def setUI(self):
         self.currentMode = self.defaultModeButton
-        print("UI setting Done")
+        # print("UI setting Done")
 
     def connectUI(self):
         self.playPauseButton.clicked.connect(self.togglePlayPause)
@@ -271,7 +204,7 @@ class eCOOLizer(QMainWindow):
         self.toggleSpectogram.clicked.connect(self.hideShowSpectogram)
         self.toggleAudiogram.clicked.connect(self.toggleScale)
 
-        print("UI Connected")
+        # print("UI Connected")
 
     def stylingUI(self):
         self.setStyleSheet(mainStyle)
@@ -310,7 +243,7 @@ class eCOOLizer(QMainWindow):
 
         self.buttonsGroup.setStyleSheet(buttonsGroupStyle)
         self.buttonsGroup.setContentsMargins(10,0,10,0)
-    print("UI is Styled")
+    # print("UI is Styled")
 
     def changeMode(self):
         button = self.sender()
@@ -395,7 +328,7 @@ class eCOOLizer(QMainWindow):
         topBar.setContentsMargins(0,5,0,5)
         self.mainLayout.addLayout(topBar,20)
         self.mainLayout.addLayout(workspace,90)
-        print("Layout is Set")
+        # print("Layout is Set")
 
     def load_signal(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")

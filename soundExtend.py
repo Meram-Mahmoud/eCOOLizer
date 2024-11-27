@@ -1,7 +1,7 @@
 from pydub import AudioSegment
 
 # Load the audio file
-audio = AudioSegment.from_file("Equalizer/sounds/mixed_animal_sounds.wav")  # Change to your file path
+audio = AudioSegment.from_file("eCOOLizer/sounds/extended_uniform.wav")  # Change to your file path
 
 # Define the target duration (in milliseconds)
 target_duration = 60000  # 1 minute, for example
@@ -14,4 +14,4 @@ extended_audio = audio * repeat_times
 extended_audio = extended_audio[:target_duration]  # Trim to exact duration
 
 # Export the result as a .wav file
-extended_audio.export("Equalizer/sounds/extended_audio.wav", format="wav")
+extended_audio.export("eCOOLizer/sounds/extended_uniform.wav", format="wav")

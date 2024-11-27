@@ -3,7 +3,7 @@ import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 
 # Load the audio file
-filename = 'eCOOLizer/sounds/animals/dogs.wav'  # Replace with your audio file
+filename = 'eCOOLizer/sounds/mixed_music_sounds.wav'  # Replace with your audio file
 sample_rate, audio_data = wav.read(filename)
 
 # If stereo, convert to mono by averaging channels
@@ -21,6 +21,6 @@ plt.plot(frequencies, fft_magnitude)
 plt.title("Frequency Spectrum")
 plt.xlabel("Frequency (Hz)")
 plt.ylabel("Magnitude")
-plt.xlim(0, 4750)
+# plt.xlim(0, 4750)
 plt.grid()
 plt.show()

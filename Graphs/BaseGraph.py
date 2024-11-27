@@ -20,7 +20,7 @@ class GraphBase(QWidget):
         self.initializeUI()
 
     def initializeAttributes(self):
-        print("Attributes")
+        # print("Attributes")
         self.scale_type = "waveForm"
         self.is_waveform_mode = True
 

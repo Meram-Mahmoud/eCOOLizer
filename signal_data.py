@@ -4,14 +4,14 @@ import sounddevice as sd
 from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="../sounds/Uniform.wav"):
+    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
         self.file_path = file_path
         self.playing=False
         self.load_signal(file_path)
-        print("signal")
+        print("signal initialized")
 
     def load_signal(self, file_path):
         # Inputs: file_path (str): Path to the audio file
@@ -19,7 +19,6 @@ class Signal:
         #self.data : (numpy array): 1D array of audio samples. Shape: (number of samples,)
         #self.sample_rate (int): Sampling rate of the audio file
         self.data, self.sample_rate = sf.read(file_path)
-        
         if self.data.ndim > 1: 
             self.data = self.data[:, 0]  # Take the first channel if multi-channel (represents mono audio)
 
@@ -30,6 +29,8 @@ class Signal:
         time_axis = np.linspace(0, num_samples / self.sample_rate, num=num_samples)
         
         self.data = np.column_stack((time_axis, self.data))
+        print(len(self.data[1]))
+
         self.fft_data()
 
     def get_data(self, end_frame=None):
@@ -90,11 +91,7 @@ class Signal:
             raise ValueError("Time and amplitude arrays must be the same length.")
 
         self.data[:end_frame, 1] = new_data[1]
-
-
-        # self.data = np.column_stack(new_data)
-
-        print(self.data)
+        # print(self.data)
 
     def fft_data(self, end_frame=None):
         # Inputs: end_frame , The end index for FFT computation

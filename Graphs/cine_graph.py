@@ -32,8 +32,8 @@ class CineGraph(GraphBase):
         self.spectrogram_display.setVisible(False)
 
         self.splitter.setStretchFactor(0, 3) 
-        print("graph")
-        print("graph")
+        # print("graph")
+        # print("graph")
 
     def set_signal(self, signal: Signal):
         # Inputs: signal (object)
