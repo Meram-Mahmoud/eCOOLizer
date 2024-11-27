@@ -45,7 +45,6 @@ class eCOOLizer(QMainWindow):
         self.sliderPanel = None
         self.signal_input = Signal()
         self.signal_output = Signal()
-        # self.original_magnitude = self.signal_input.get_fft_data()[1]
         print("initialized")
 
     def createUI(self):
@@ -122,6 +121,7 @@ class eCOOLizer(QMainWindow):
             slider = Slider(label=name)
             slider.set_freq(slider_range)
             slider.set_signal(self.signal_output.get_fft_data())
+            slider.set_old_magnitudes(self.signal_input.get_fft_data()[1])
             slider.samping_rate = self.signal_output.sample_rate
             slider.newSignalAndFourier.connect(self.handleSliderChange)
             sliderPanelLayout.addWidget(slider)

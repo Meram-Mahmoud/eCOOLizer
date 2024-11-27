@@ -17,7 +17,7 @@ class Slider(QWidget):
         self.sliderFrequency = targetFreq
         self.samping_rate = None
         self.signal = None # signal will be modified before passing to the class
-
+        self.magnitudes = None
         # Create a vertical layout for each slider and label
         layout = QVBoxLayout()
 
@@ -46,7 +46,7 @@ class Slider(QWidget):
 
     def set_signal(self, new_signal):
         """
-        signal: [time, amp]
+        signal: fourier signal
         """
         self.signal = new_signal
 
@@ -55,6 +55,9 @@ class Slider(QWidget):
         new_freq: int
         """
         self.sliderFrequency = new_freq
+
+    def set_old_magnitudes(self, mag):
+        self.magnitudes = mag
 
     def update_label(self, value):
         """
@@ -77,11 +80,12 @@ class Slider(QWidget):
 
             if indices.size > 0:
                 # Display original magnitudes
-                print(f"Original magnitudes at frequencies {frequency[indices]} Hz: {magnitudes[indices]}")
+                # print(f"Original magnitudes at frequencies {frequency[indices]} Hz: {magnitudes[indices]}")
 
-                magnitudes[indices] += new_magnitude * 1000
+                magnitudes[indices] = new_magnitude * 1000 + self.magnitudes[indices]
                 magnitudes[magnitudes < 0] = 0
-                print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magnitudes[indices]}")
+                print(magnitudes[indices], self.magnitudes[indices])
+                # print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magnitudes[indices]}")
             else:
                 print("No frequencies found in the specified target range.")
 
