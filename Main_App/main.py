@@ -145,8 +145,8 @@ class eCOOLizer(QMainWindow):
             return self.contorls(names, ranges)
         
         elif mode == "music":
-            names = []
-            ranges = []
+            names = ["guitar","piano","Triangle","trombone","Xylophone"]
+            ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
             return self.contorls(names, ranges)
 
         elif mode == "ecg":
