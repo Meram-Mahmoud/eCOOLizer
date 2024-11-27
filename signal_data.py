@@ -4,7 +4,7 @@ import sounddevice as sd
 from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
+    def __init__(self, file_path="../sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
@@ -86,11 +86,11 @@ class Signal:
         if not end_frame or end_frame > len(self.data):
             end_frame = len(self.data)  # Use the full length if end_frame is None or exceeds bounds
 
-        print(self.data.shape)
-        self.data[:end_frame, 1] = new_data[1]
-
         if len(new_data[0]) != len(new_data[1]):
             raise ValueError("Time and amplitude arrays must be the same length.")
+
+        self.data[:end_frame, 1] = new_data[1]
+
 
         # self.data = np.column_stack(new_data)
 
