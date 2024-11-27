@@ -1,10 +1,11 @@
 import numpy as np
 import soundfile as sf
+import pandas as pd
 import sounddevice as sd
 from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
+    def __init__(self, file_path="Equalizer/sounds/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
@@ -32,6 +33,12 @@ class Signal:
         print(len(self.data[1]))
 
         self.fft_data()
+
+    def load_signal_from_csv(self, file_path):
+        df = pd.read_csv(file_path)
+        self.time = df['Time'].values  
+        self.data = df['Amplitude'].values
+
 
     def get_data(self, end_frame=None):
          # Inputs: end_frame, Last frame index to return, Default: full length

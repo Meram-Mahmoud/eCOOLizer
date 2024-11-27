@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 import pyqtgraph as pg
 from scipy.fft import fft, ifft, fftfreq
 from scipy.signal import butter, filtfilt
-from fourier_graph import FourierTransformGraph
+# from fourier_graph import FourierTransformGraph
 from signal_data import Signal
 
 

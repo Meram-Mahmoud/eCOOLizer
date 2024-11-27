@@ -155,8 +155,8 @@ class eCOOLizer(QMainWindow):
             return self.contorls(names, ranges)
 
         elif mode == "ecg":
-            names = []
-            ranges = []
+            names = ["Normal","Aflutter","Afib","Bradycardia"]
+            ranges = [[0.5,20],[59,62],[59,62],[75,96]]
             return self.contorls(names, ranges)
 
     def plotDummyData(self):
