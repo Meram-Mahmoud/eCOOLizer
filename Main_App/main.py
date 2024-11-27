@@ -101,8 +101,7 @@ class eCOOLizer(QMainWindow):
     def updateSliderPanel(self, mode = "default"):
         if self.sliderPanel:
             self.sliderPanel.deleteLater()
-
-
+            
         #NEED MODE CHECK
         self.sliderPanel = self.createSliderPanel(mode)
 
@@ -113,77 +112,118 @@ class eCOOLizer(QMainWindow):
         if workspaceLayout:
             workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
-    def createSliderPanel(self, mode = "default"):
+    def contorls(self, names, ranges):
         sliderPanelLayout = QHBoxLayout() 
         sliderPanelLayout.setAlignment(Qt.AlignCenter) 
-        sliderPanelLayout.setSpacing(20)        
-        if mode == "default":
-        
-            for ind in range(1,11):
-                slider = Slider(label=f"{ind*100+1000} HZ")
-                slider.set_freq([[ind*100+1000, (ind+1)*100+1000]])
+        sliderPanelLayout.setSpacing(20)
 
-                # print(self.signal.get_data())
-                slider.set_signal(self.signal_output.get_fft_data())
-                slider.samping_rate = self.signal_output.sample_rate
-                slider.newSignalAndFourier.connect(self.handleSliderChange)
-                sliderPanelLayout.addWidget(slider)
-       
-        if mode == "animal":
-             # ==== Cat ====
-            slider = Slider(label="Cat")
-            slider.set_freq([[64, 500]])
-            # print(self.signal.get_data())
+        for name, slider_range in zip(names, ranges):
+            slider = Slider(label=name)
+            slider.set_freq(slider_range)
             slider.set_signal(self.signal_output.get_fft_data())
             slider.samping_rate = self.signal_output.sample_rate
             slider.newSignalAndFourier.connect(self.handleSliderChange)
             sliderPanelLayout.addWidget(slider)
 
-            # === Dog ===
-            slider = Slider(label="Dog")
-            slider.set_freq([[500, 1010]])
-            # print(self.signal.get_data())
-            slider.set_signal(self.signal_output.get_fft_data())
-            slider.samping_rate = self.signal_output.sample_rate
-            slider.newSignalAndFourier.connect(self.handleSliderChange)
-            sliderPanelLayout.addWidget(slider)
-
-            # === Bird === 
-            slider = Slider(label="Bird")
-            slider.set_freq([[1010, 2010]])
-            # print(self.signal.get_data())
-            slider.set_signal(self.signal_output.get_fft_data())
-            slider.samping_rate = self.signal_output.sample_rate
-            slider.newSignalAndFourier.connect(self.handleSliderChange)
-            sliderPanelLayout.addWidget(slider)
-
-            # === Lion ===
-            slider = Slider(label="Lion")
-            slider.set_freq([[2010, 8000]])
-            # print(self.signal.get_data())
-            slider.set_signal(self.signal_output.get_fft_data())
-            slider.samping_rate = self.signal_output.sample_rate
-            slider.newSignalAndFourier.connect(self.handleSliderChange)
-            sliderPanelLayout.addWidget(slider)
-
-        # elif mode == "music":
-        #     triangleSlider = Slider("triangle")
-        #     triangleSlider.set_freq(11000)
-        #     triangleSlider.set_signal(self.signal.get_data())
-        #     triangleSlider.samping_rate = self.signal.sample_rate
-        #     triangleSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-            
-        #     pianoSlider = Slider("dog")
-        #     pianoSlider.set_freq(300)
-        #     pianoSlider.set_signal(self.signal.get_data())
-        #     pianoSlider.samping_rate = self.signal.sample_rate
-        #     pianoSlider.newSignalAndFourier.connect(self.handleSliderChange)    
-              
         # Create a QWidget to hold the slider panel layout and return it
         sliderPanelWidget = QWidget()
         sliderPanelWidget.setLayout(sliderPanelLayout)
 
         return sliderPanelWidget
+
+    def createSliderPanel(self, mode = "default"):    
+        if mode == "default":  
+            names, ranges = [], []  
+            for ind in range(1,11):
+                names.append(f"{ind*100+1000} HZ")
+                ranges.append([[ind*100+1000, (ind+1)*100+1000]])
+            return self.contorls(names, ranges)
+
+        elif mode == "animal":
+            names = ["Cat", "Dog", "Bird", "Lion"]
+            ranges = [[[64, 500]], [[500, 1010]], [[1010, 2010]], [[2010, 8000]]]
+            return self.contorls(names, ranges)
+        
+        elif mode == "music":
+            names = []
+            ranges = []
+            return self.contorls(names, ranges)
+
+        elif mode == "ecg":
+            pass
+
+
+    # def createSliderPanel(self, mode = "default"):
+    #     sliderPanelLayout = QHBoxLayout() 
+    #     sliderPanelLayout.setAlignment(Qt.AlignCenter) 
+    #     sliderPanelLayout.setSpacing(20)        
+    #     if mode == "default":
+        
+    #         for ind in range(1,11):
+    #             slider = Slider(label=f"{ind*100+1000} HZ")
+    #             slider.set_freq([[ind*100+1000, (ind+1)*100+1000]])
+
+    #             # print(self.signal.get_data())
+    #             slider.set_signal(self.signal_output.get_fft_data())
+    #             slider.samping_rate = self.signal_output.sample_rate
+    #             slider.newSignalAndFourier.connect(self.handleSliderChange)
+    #             sliderPanelLayout.addWidget(slider)
+       
+    #     if mode == "animal":
+    #          # ==== Cat ====
+    #         slider = Slider(label="Cat")
+    #         slider.set_freq([[64, 500]])
+    #         # print(self.signal.get_data())
+    #         slider.set_signal(self.signal_output.get_fft_data())
+    #         slider.samping_rate = self.signal_output.sample_rate
+    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
+    #         sliderPanelLayout.addWidget(slider)
+
+    #         # === Dog ===
+    #         slider = Slider(label="Dog")
+    #         slider.set_freq([[500, 1010]])
+    #         # print(self.signal.get_data())
+    #         slider.set_signal(self.signal_output.get_fft_data())
+    #         slider.samping_rate = self.signal_output.sample_rate
+    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
+    #         sliderPanelLayout.addWidget(slider)
+
+    #         # === Bird === 
+    #         slider = Slider(label="Bird")
+    #         slider.set_freq([[1010, 2010]])
+    #         # print(self.signal.get_data())
+    #         slider.set_signal(self.signal_output.get_fft_data())
+    #         slider.samping_rate = self.signal_output.sample_rate
+    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
+    #         sliderPanelLayout.addWidget(slider)
+
+    #         # === Lion ===
+    #         slider = Slider(label="Lion")
+    #         slider.set_freq([[2010, 8000]])
+    #         # print(self.signal.get_data())
+    #         slider.set_signal(self.signal_output.get_fft_data())
+    #         slider.samping_rate = self.signal_output.sample_rate
+    #         slider.newSignalAndFourier.connect(self.handleSliderChange)
+    #         sliderPanelLayout.addWidget(slider)
+
+    #     # elif mode == "music":
+    #     #     triangleSlider = Slider("triangle")
+    #     #     triangleSlider.set_freq(11000)
+    #     #     triangleSlider.set_signal(self.signal.get_data())
+    #     #     triangleSlider.samping_rate = self.signal.sample_rate
+    #     #     triangleSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+            
+    #     #     pianoSlider = Slider("dog")
+    #     #     pianoSlider.set_freq(300)
+    #     #     pianoSlider.set_signal(self.signal.get_data())
+    #     #     pianoSlider.samping_rate = self.signal.sample_rate
+    #     #     pianoSlider.newSignalAndFourier.connect(self.handleSliderChange)    
+              
+    #     # Create a QWidget to hold the slider panel layout and return it
+    #     sliderPanelWidget = QWidget()
+    #     sliderPanelWidget.setLayout(sliderPanelLayout)
+
+    #     return sliderPanelWidget
 
     def plotDummyData(self):
         if not hasattr(self, 'time'):
@@ -377,7 +417,7 @@ class eCOOLizer(QMainWindow):
 
     def togglePlayPause(self):
         if self.is_playing:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
+            self.playPauseButton.setIcon(QIcon("eCOOLizer/Main_App/Assets/pause.png"))
             self.is_playing = False
             print("Playback paused") 
             
@@ -385,7 +425,7 @@ class eCOOLizer(QMainWindow):
             self.outputGraph.pause()
 
         else:
-            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
+            self.playPauseButton.setIcon(QIcon("eCOOLizer/Main_App/Assets/play.png"))
             self.is_playing = True
             print("Playback started")
             
