@@ -45,6 +45,7 @@ class eCOOLizer(QMainWindow):
         self.sliderPanel = None
         self.signal_input = Signal()
         self.signal_output = Signal()
+        # self.original_magnitude = self.signal_input.get_fft_data()[1]
         print("initialized")
 
     def createUI(self):
@@ -388,16 +389,15 @@ class eCOOLizer(QMainWindow):
             if signal is not None:
                 signal.play_audio() 
                 if not self.audio_playing:
-                    self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
+                    self.playAudio.setIcon(QIcon("eCOOLizer/Main_App/Assets/play audio.png"))  
                     self.audio_playing = True
                 else:
-                    self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
+                    self.playAudio.setIcon(QIcon("eCOOLizer/Main_App/Assets/pause audio.png"))  
                     self.audio_playing = False
             else:
                 print("No audio signal loaded.")
 
     def switch_mode(self):
-
         if self.audio_playing:
             self.toggle_audio_playback()  
             self.toggle_audio_playback()  
