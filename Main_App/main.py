@@ -112,7 +112,7 @@ class eCOOLizer(QMainWindow):
         if workspaceLayout:
             workspaceLayout.itemAt(1).addLayout(sliderPanelLayout)
 
-    def contorls(self, names, ranges):
+    def contorls(self, names, ranges, const=100):
         sliderPanelLayout = QHBoxLayout() 
         sliderPanelLayout.setAlignment(Qt.AlignCenter) 
         sliderPanelLayout.setSpacing(20)
@@ -122,6 +122,7 @@ class eCOOLizer(QMainWindow):
             slider.set_freq(slider_range)
             slider.set_signal(self.signal_output.get_fft_data())
             slider.set_old_magnitudes(self.signal_input.get_fft_data()[1])
+            slider.set_constant(const)
             slider.samping_rate = self.signal_output.sample_rate
             slider.newSignalAndFourier.connect(self.handleSliderChange)
             sliderPanelLayout.addWidget(slider)
@@ -138,21 +139,21 @@ class eCOOLizer(QMainWindow):
             for ind in range(1,11):
                 names.append(f"{ind*100+1000} HZ")
                 ranges.append([[ind*100+1000, (ind+1)*100+1000]])
-            return self.contorls(names, ranges)
+            return self.contorls(names, ranges, 100)
 
         elif mode == "animal":
             # names = ["Cat", "Dog", "Bird", "Lion"]
             # ranges = [[[0, 4000]], [[50, 2000]], [[1800, 2600]], [[0, 500]]]
             names = ["Dog", "Wolve", "Crow", "Bat"]
             ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
-            return self.contorls(names, ranges)
+            return self.contorls(names, ranges, 1000)
         
         elif mode == "music":
             # names = ["guitar","piano","Triangle","trombone","Xylophone"]
             # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
             names = ["Guitar", "Flute", "Harmonica", "Xylophone"]
             ranges = [[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
-            return self.contorls(names, ranges)
+            return self.contorls(names, ranges, 100)
 
         elif mode == "ecg":
             names = ["Normal","Aflutter","Afib","Bradycardia"]

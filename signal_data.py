@@ -69,6 +69,7 @@ class Signal:
             end_frame = len(self.data)  # Use the full length if end_frame is None or exceeds bounds
 
         # Validate the structure of self.data
+        # print(self.data.shape)
         if self.data.shape[1] < 3:
             raise ValueError("Expected at least three columns in self.data for frequency, magnitude, and phase.")
         
@@ -129,6 +130,7 @@ class Signal:
         # return frequencies, magnitudes
 
     def get_fft_data(self, end_frame = None):
+        # print(self.data.shape)
         return self.data[:end_frame, 0], self.data[:end_frame, 1]
     
     def calculate_spectrogram(self, chunks=512, overlap=256):
