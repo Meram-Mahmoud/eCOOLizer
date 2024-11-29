@@ -5,7 +5,7 @@ import sounddevice as sd
 from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="eCOOLizer/sounds/Uniform.wav"):
+    def __init__(self, file_path="eCOOLizer/sounds/workedfiles/Uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
@@ -38,6 +38,8 @@ class Signal:
         df = pd.read_csv(file_path)
         self.time = df['Time'].values  
         self.data = df['Amplitude'].values
+        self.data = np.column_stack((self.time, self.data))  
+        self.fft_data()
 
 
     def get_data(self, end_frame=None):
