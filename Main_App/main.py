@@ -137,9 +137,12 @@ class eCOOLizer(QMainWindow):
         if mode == "default":  
             names, ranges = [], []  
             for ind in range(1,11):
-                names.append(f"{ind*100+1000} HZ")
-                ranges.append([[ind*100+1000, (ind+1)*100+1000]])
-            return self.contorls(names, ranges, 1700)
+                # names.append(f"{ind*100+1000} HZ")
+                # ranges.append([[ind*100+1000, (ind+1)*100+1000]])
+                center_frequency = ind * 100 + 1000  # Calculate the center frequency
+                names.append(f"{center_frequency} HZ")  # Append name
+                ranges.append([[center_frequency - 10, center_frequency + 10]])
+            return self.contorls(names, ranges, 8700)
 
         elif mode == "animal":
             # names = ["Cat", "Dog", "Bird", "Lion"]
@@ -155,9 +158,9 @@ class eCOOLizer(QMainWindow):
             # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
    
             names = ["Guitar", "Flute", "xylophone", "Harmonica"]
-            ranges = [[[0, 170]], [[170, 400]], [[150, 2000],[2000,23000]], [[400, 4000]]]
+            ranges = [[[0, 170]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
             # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
-            return self.contorls(names, ranges, 1880)
+            return self.contorls(names, ranges, 1870)
 
         elif mode == "ecg":
             names = ["Normal","Aflutter","Afib","Bradycardia"]
