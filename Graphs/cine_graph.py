@@ -72,31 +72,43 @@ class CineGraph(GraphBase):
         self.spectrogram_display.updateGeometry()
         self.splitter.updateGeometry()
 
-        
     def update_plot(self):
-        #Updates the graph with the current frame of the signal.
+        # Updates the graph with the current frame of the signal.
         if self.signal is None:
             return
 
-        # time_data, amplitude_data = self.signal.get_data(end_frame=self.current_frame)
+        # Get the time-domain data for the current frame
         time_data, amplitude_data = self.signal.get_time_domain_data(end_frame=self.current_frame)
 
+        # Plot the data
         self.plot_graph(time_data, amplitude_data)
+        # print(f"Amplitude data: {amplitude_data[:10]}")  # Show first 10 data points
+        # print(f"Min amplitude: {min(amplitude_data)}, Max amplitude: {max(amplitude_data)}")
 
         # Adjust the window to show the last 1 second of the signal
-        window_duration = 1  
+        window_duration = 1  # Display the last second of data
         end_time = time_data[-1] if len(time_data) > 0 else 0
         start_time = max(0, end_time - window_duration)
 
+        # Set the X range (time axis)
         self.plot_widget.setXRange(start_time, end_time)
 
+        # Update the Y range dynamically based on the amplitude data
+        y_min, y_max = min(amplitude_data), max(amplitude_data)
+        padding = (y_max - y_min) * 0.1  # Add some padding to the y-range
+        y_min -= padding
+        y_max += padding
+
+        # Set the Y range (amplitude axis)
+        self.plot_widget.setYRange(y_min, y_max)
+
+        # Update the current frame for the next iteration
         if self.is_playing:
-            self.current_frame += int(self.signal.sample_rate * 0.05)
+            self.current_frame += int(self.signal.sample_rate * 0.05)  # Increment frame by 50 ms
             if self.current_frame >= len(self.signal.data):
                 self.timer.stop()
                 self.is_playing = False
 
-    
 
     # def play(self):
     #     if not self.is_playing:
@@ -229,6 +241,10 @@ if __name__ == "__main__":
 
             cine_graph1.set_signal(signal)
             cine_graph2.set_signal(signal)
+
+            cine_graph1.clear()
+            cine_graph2.clear()
+            cine_graph1.timer.start(cine_graph1.playSpeed)
 
     load_button = QPushButton("Load Signal")
     load_button.clicked.connect(load_signal)

@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'Graphs')))
-
+import numpy as np
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton, QFileDialog
 from PyQt5.QtCore import Qt
 from .BaseGraph import GraphBase
@@ -32,13 +32,21 @@ class FourierTransformGraph(GraphBase):
         # magnitudes (1D numpy array): Magnitude values of the FFT. Shape: (number of bins,).
 
         if self.is_audiogram_mode:
-            freq_bins, thresholds = self.signal.calculate_audiogram(frequencies, magnitudes)
-            self.graph_fit(freq_bins, thresholds,True)
-            self.plot_graph(freq_bins, thresholds, pen='r', symbol='o', symbolBrush='b')
+            valid_indices = frequencies > 0
+            frequencies = frequencies[valid_indices]
+            magnitudes = magnitudes[valid_indices]
+
+            magnitudes_clipped = np.clip(magnitudes, a_min=1e-10, a_max=None)
+            magnitudes_db = 20 * np.log10(magnitudes_clipped)
+            log_frequencies = np.log10(frequencies)
+            # self.graph_fit(freq_bins, thresholds,True)
+            self.plot_widget.setLogMode(x=True, y=False)
+            self.plot_graph(log_frequencies, magnitudes_db, pen='r', symbol='o', symbolBrush='b')
             self.plot_widget.setLabel('left', 'Threshold (dB)')
             self.plot_widget.setLabel('bottom', 'Frequency (Hz)')
         else:
-            self.graph_fit(frequencies, magnitudes,False)
+            # self.graph_fit(frequencies, magnitudes,False)
+            self.plot_widget.setLogMode(x=False, y=False)
             self.plot_graph(frequencies, magnitudes, pen='y')
             self.plot_widget.setLabel('left', 'Magnitude')
             self.plot_widget.setLabel('bottom', 'Frequency (Hz)')

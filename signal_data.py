@@ -5,7 +5,7 @@ import sounddevice as sd
 from scipy.signal import spectrogram
 
 class Signal:
-    def __init__(self, file_path="eCOOLizer/sounds/workedfiles/Uniform.wav"):
+    def __init__(self, file_path="sounds/extended_uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
         self.sample_rate = None  # Sampling rate of the audio file
@@ -139,23 +139,25 @@ class Signal:
         if self.data is None or self.data.shape[1] < 2:
              raise ValueError("data not available.")
 
-        step = chunks - overlap
-        num_frames = self.data.shape[0]
-        spectrogram = []
+        time_axis, amplitude = self.get_time_domain_data()
+        freqs, times, spec = spectrogram(amplitude, fs=self.sample_rate, window='hann',nperseg=chunks, noverlap=overlap, scaling='spectrum')
+        return freqs, times, spec
 
-        # Iterate over time windows
-        for start in range(0, num_frames - chunks + 1, step):
-            windowed_magnitudes = self.data[start:start + chunks, 1]  # Magnitudes only
-            spectrogram.append(windowed_magnitudes)
+        # step = chunks - overlap
+        # num_frames = self.data.shape[0]
+        # spectrogram = []
 
-        spectrogram = np.array(spectrogram)  # Transpose for correct shape
-        freqs = self.data[:chunks, 0]  # Frequencies from precomputed FFT
-        times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
+        # # Iterate over time windows
+        # for start in range(0, num_frames - chunks + 1, step):
+        #     windowed_magnitudes = self.data[start:start + chunks, 1]  # Magnitudes only
+        #     spectrogram.append(windowed_magnitudes)
 
-        return freqs, times, spectrogram
-    #    time_axis, amplitude = self.get_time_domain_data()
-    #    freqs, times, spec = spectrogram(amplitude, fs=self.sample_rate, window='hann',nperseg=chunks, noverlap=overlap, scaling='spectrum')
-    #    return freqs, times, spec
+        # spectrogram = np.array(spectrogram)  # Transpose for correct shape
+        # freqs = self.data[:chunks, 0]  # Frequencies from precomputed FFT
+        # times = np.arange(0, spectrogram.shape[1]) * (step / self.sample_rate)
+
+        # return freqs, times, spectrogram
+      
         
         #manual calc
         # if self.data is None or self.data.shape[1] < 2:
@@ -207,32 +209,14 @@ class Signal:
 
 
     def calculate_audiogram(self, frequencies, magnitudes):
-        # Inputs:
-        #frequencies (numpy array): FFT frequency, Shape: (n,)
-        #magnitudes (numpy array): Magnitudes of FFT, Shape: (n,)
-        # Outputs:
-        #freq_bins(numpy array): Fixed audiogram frequency bins (250–8000 Hz), Shape: (6,).
-        #thresholds(list): Threshold values (dB), Shape: (6,).
-        freq_bins = np.array([250, 500, 1000, 2000, 4000, 8000])
-        thresholds = []
-        for freq in freq_bins:
-            closest_index = np.abs(frequencies - freq).argmin()
-            magnitude = magnitudes[closest_index]
-            threshold = 120 - min(120, 20 * np.log10(np.abs(magnitude) + 1e-3))
-            thresholds.append(threshold)
-        return freq_bins, thresholds
-    
-        # valid_indices = frequencies > 0
-        # frequencies = frequencies[valid_indices]
-        # magnitudes = magnitudes[valid_indices]
-        
-        # # Convert to log scale for frequencies
-        # log_frequencies = np.log10(frequencies)
-        
-        # # Convert magnitudes to decibels
-        # thresholds = 120 - np.minimum(120, 20 * np.log10(magnitudes + 1e-6))
-        
-        # return log_frequencies, thresholds
+        valid_indices = frequencies > 0
+        frequencies = frequencies[valid_indices]
+        magnitudes = magnitudes[valid_indices]
+
+        magnitudes_clipped = np.clip(magnitudes, a_min=1e-10, a_max=None)
+        magnitudes_db = 20 * np.log10(magnitudes_clipped)
+        log_frequencies = np.log10(frequencies)
+        return log_frequencies, magnitudes_db
     
     
     

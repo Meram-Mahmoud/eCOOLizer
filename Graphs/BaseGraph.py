@@ -16,13 +16,10 @@ class GraphBase(QWidget):
         self.title = title
         self.layout = QVBoxLayout(self)
         
-        self.initializeAttributes()
+       
         self.initializeUI()
 
-    def initializeAttributes(self):
-        # print("Attributes")
-        self.scale_type = "waveForm"
-        self.is_waveform_mode = True
+  
 
     def initializeUI(self):
         self.createUIElements()
@@ -58,6 +55,7 @@ class GraphBase(QWidget):
         self.plot_widget.clear()
         
         self.plot_widget.plot(time_data, amplitude_data, pen=pen)
+        
  
 
     def clear(self):

@@ -139,7 +139,7 @@ class eCOOLizer(QMainWindow):
             for ind in range(1,11):
                 names.append(f"{ind*100+1000} HZ")
                 ranges.append([[ind*100+1000, (ind+1)*100+1000]])
-            return self.contorls(names, ranges, 1000)
+            return self.contorls(names, ranges, 1700)
 
         elif mode == "animal":
             # names = ["Cat", "Dog", "Bird", "Lion"]
@@ -151,13 +151,17 @@ class eCOOLizer(QMainWindow):
         elif mode == "music":
             # names = ["guitar","piano","Triangle","trombone","Xylophone"]
             # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
-            names = ["Guitar", "Flute", "Harmonica", "Xylophone"]
-            ranges = [[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
-            return self.contorls(names, ranges, 100)
+            # names = ["Guitar", "Flute", "xylophone", "drums"]
+            # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
+   
+            names = ["Guitar", "Flute", "xylophone", "Harmonica"]
+            ranges = [[[0, 170]], [[170, 400]], [[150, 2000],[2000,23000]], [[400, 4000]]]
+            # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
+            return self.contorls(names, ranges, 1880)
 
         elif mode == "ecg":
             names = ["Normal","Aflutter","Afib","Bradycardia"]
-            ranges = [[[0.5,20]],[[59,62]],[[59,62]],[[75,96]]]
+            ranges=[[[0.5,20]],[[59,62]],[[59,62]],[[75,96]]]
             return self.contorls(names, ranges)
 
     def plotDummyData(self):
@@ -333,37 +337,40 @@ class eCOOLizer(QMainWindow):
         # print("Layout is Set")
 
     def load_signal(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg *.csv)")
         if file_path:
-            # self.signal = Signal()
-            self.signal_input.load_signal(file_path)
-            self.signal_output.load_signal(file_path)
-            file_name = os.path.basename(file_path)
-            self.audioLoadedName.setText(f"{file_name}")
+            file_extension = os.path.splitext(file_path)[-1].lower()  # Get the file extension in lowercase
+            if file_extension == '.csv':
+                self.signal_input.load_signal_from_csv(file_path)
+                self.signal_output.load_signal_from_csv(file_path)
+                file_name = os.path.basename(file_path)
+                self.audioLoadedName.setText(f"{file_name}")
 
-            self.inputGraph.set_signal(self.signal_input)
-            self.outputGraph.set_signal(self.signal_output)
+                self.inputGraph.set_signal(self.signal_input)
+                self.outputGraph.set_signal(self.signal_output)
 
-            self.inputGraph.clear()
-            self.outputGraph.clear()
-            self.inputGraph.timer.start(self.inputGraph.playSpeed)
+                self.inputGraph.clear()
+                self.outputGraph.clear()
+                self.inputGraph.timer.start(self.inputGraph.playSpeed)
 
-            self.fourierGraph.set_signal(self.signal_output)
-        else:
-            self.signal_input.load_signal(file_path)
-            self.signal_output.load_signal(file_path)
-            file_name = os.path.basename(file_path)
-            self.audioLoadedName.setText(f"{file_name}")
+                self.fourierGraph.set_signal(self.signal_output)
+                print("ALLO mel main class (loading csv)")
+            else:
+                # self.signal = Signal()
+                self.signal_input.load_signal(file_path)
+                self.signal_output.load_signal(file_path)
+                file_name = os.path.basename(file_path)
+                self.audioLoadedName.setText(f"{file_name}")
 
-            self.inputGraph.set_signal(self.signal_input)
-            self.outputGraph.set_signal(self.signal_output)
+                self.inputGraph.set_signal(self.signal_input)
+                self.outputGraph.set_signal(self.signal_output)
 
-            self.inputGraph.clear()
-            self.outputGraph.clear()
-            self.inputGraph.timer.start(self.inputGraph.playSpeed)
+                self.inputGraph.clear()
+                self.outputGraph.clear()
+                self.inputGraph.timer.start(self.inputGraph.playSpeed)
 
-            self.fourierGraph.set_signal(self.signal_output)
-
+                self.fourierGraph.set_signal(self.signal_output)
+        
     def togglePlayPause(self):
         if self.is_playing:
             self.playPauseButton.setIcon(QIcon("eCOOLizer/Main_App/Assets/pause.png"))
