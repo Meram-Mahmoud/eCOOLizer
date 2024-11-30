@@ -148,3 +148,16 @@ radioButtonStyle = f"""
         border: 2px solid #FFFFFF; /* Lighten border on hover */
     }}
 """
+
+splitterStyle = f"""
+    QSplitter::handle {{
+        background-color: {darkColor}; 
+    }}
+    QSplitter::handle:horizontal {{
+        width: 5px;
+    }}
+    QSplitter::handle:vertical {{
+        height: 5px;
+    }}
+"""
+

@@ -95,3 +95,11 @@ class Slider(QWidget):
 
         self.newSignalAndFourier.emit([frequency, magnitudes])
     
+
+
+
+
+
+
+
+

@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton, QFil
 from PyQt5.QtCore import Qt
 from .BaseGraph import GraphBase
 from signal_data import Signal
+from mainStyle import darkColor, yellowColor
 
 class FourierTransformGraph(GraphBase):
     def __init__(self, title="Fourier Transform"):
@@ -41,7 +42,7 @@ class FourierTransformGraph(GraphBase):
             log_frequencies = np.log10(frequencies)
             # self.graph_fit(freq_bins, thresholds,True)
             self.plot_widget.setLogMode(x=True, y=False)
-            self.plot_graph(log_frequencies, magnitudes_db, pen='r', symbol='o', symbolBrush='b')
+            self.plot_graph(log_frequencies, magnitudes_db, pen=yellowColor)
             self.plot_widget.setLabel('left', 'Threshold (dB)')
             self.plot_widget.setLabel('bottom', 'Frequency (Hz)')
         else:

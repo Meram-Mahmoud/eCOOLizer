@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, Q
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
 
-from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle,speedSliderStyle,radioButtonStyle
+from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle,speedSliderStyle,radioButtonStyle,splitterStyle
 from mainStyle import darkColor, yellowColor
 from Graphs.BaseGraph import GraphBase
 from Graphs.cine_graph import CineGraph 
@@ -25,9 +25,10 @@ class eCOOLizer(QMainWindow):
         super().__init__()
         self.setWindowTitle("eCOOLizer")
         self.setGeometry(100, 100, 1000, 700)
-
+        
+        
         self.mainLayout = QVBoxLayout()
-
+        self.createSpectrograms()
         self.initialize()
         self.createUI()
         # self.plotDummyData()
@@ -195,6 +196,12 @@ class eCOOLizer(QMainWindow):
         # Update the time for the next plot
         self.time += 0.1  # Increment the time to simulate real-time progression
 
+    def createSpectrograms(self):
+        self.inputSpectrogram = SpectrogramDisplay()
+        self.outputSpectrogram = SpectrogramDisplay()
+        self.inputSpectrogram.hide()
+        self.outputSpectrogram.hide()
+
     def setUI(self):
         self.currentMode = self.defaultModeButton
         # print("UI setting Done")
@@ -224,6 +231,10 @@ class eCOOLizer(QMainWindow):
 
         self.toggleSpectogram.setStyleSheet(importButton)
         self.toggleAudiogram.setStyleSheet(importButton)
+
+        self.inputSplitter.setStyleSheet(splitterStyle)
+        self.outputSplitter.setStyleSheet(splitterStyle)
+
 
         self.playPauseButton.setStyleSheet(controlButtonStyle)
         self.playPauseButton.setIconSize(QSize(25, 25))
@@ -304,19 +315,48 @@ class eCOOLizer(QMainWindow):
         topBar.addStretch()
 
         workspace = QVBoxLayout()
-        # workspace.addWidget(self.splitter)
 
         graphsLayout = QVBoxLayout()
 
-        inputOutputgraphsLayout = QVBoxLayout()
-        inputOutputgraphsLayout.addWidget(self.inputGraph)
-        inputOutputgraphsLayout.addWidget(self.outputGraph)
+        # Input Splitter
+        self.inputSplitter = QSplitter(Qt.Horizontal)
+        inputGraphWidget = QWidget()
+        inputGraphLayout = QVBoxLayout()
+        inputGraphLayout.addWidget(self.inputGraph)
+        inputGraphWidget.setLayout(inputGraphLayout)
 
-        graphsLayout.addLayout(inputOutputgraphsLayout,60)
-        graphsLayout.addWidget(self.fourierGraph,30)
+        inputSpectrogramWidget = QWidget()
+        inputSpectrogramLayout = QVBoxLayout()
+        inputSpectrogramLayout.addWidget(self.inputSpectrogram)
+        inputSpectrogramWidget.setLayout(inputSpectrogramLayout)
 
+        self.inputSplitter.addWidget(inputGraphWidget)
+        self.inputSplitter.addWidget(inputSpectrogramWidget)
+        self.inputSplitter.setSizes([700, 0])  # Adjust sizes to make both visible
+
+        # Output Splitter
+        self.outputSplitter = QSplitter(Qt.Horizontal)
+        outputGraphWidget = QWidget()
+        outputGraphLayout = QVBoxLayout()
+        outputGraphLayout.addWidget(self.outputGraph)
+        outputGraphWidget.setLayout(outputGraphLayout)
+
+        outputSpectrogramWidget = QWidget()
+        outputSpectrogramLayout = QVBoxLayout()
+        outputSpectrogramLayout.addWidget(self.outputSpectrogram)
+        outputSpectrogramWidget.setLayout(outputSpectrogramLayout)
+
+        self.outputSplitter.addWidget(outputGraphWidget)
+        self.outputSplitter.addWidget(outputSpectrogramWidget)
+        self.outputSplitter.setSizes([700, 0])  # Adjust sizes to make both visible
+
+        # Add components to graphsLayout
+        graphsLayout.addWidget(self.inputSplitter)  # Add the entire input splitter
+        graphsLayout.addWidget(self.outputSplitter)  # Add the entire output splitter
+        graphsLayout.addWidget(self.fourierGraph)  # Add the Fourier graph
+
+        # Modes row layout
         modesRowLayout = QHBoxLayout()
-
         modesLayout = QHBoxLayout(self.buttonsGroup)
         modesLayout.addWidget(self.defaultModeButton)
         modesLayout.addWidget(self.animalModeButton)
@@ -324,20 +364,22 @@ class eCOOLizer(QMainWindow):
         modesLayout.addWidget(self.ecgModeButton)
 
         modesRowLayout.addStretch(20)
-        modesRowLayout.addWidget(self.buttonsGroup,20)
+        modesRowLayout.addWidget(self.buttonsGroup, 20)
         modesRowLayout.addStretch(20)
 
+        # Sliders panel layout
         slidersPanelLayout = QHBoxLayout()
         slidersPanelLayout.addWidget(self.sliderPanel)
 
-        workspace.addLayout(graphsLayout,40)
-        workspace.addLayout(slidersPanelLayout,30)
-        workspace.addLayout(modesRowLayout,5)
+        # Add all layouts to workspace
+        workspace.addLayout(graphsLayout, 60)
+        workspace.addLayout(slidersPanelLayout, 20)
+        workspace.addLayout(modesRowLayout, 5)
 
-        topBar.setContentsMargins(0,5,0,5)
-        self.mainLayout.addLayout(topBar,20)
-        self.mainLayout.addLayout(workspace,90)
-        # print("Layout is Set")
+        # Set top bar margins and add layouts to main layout
+        topBar.setContentsMargins(0, 5, 0, 5)
+        self.mainLayout.addLayout(topBar, 20)
+        self.mainLayout.addLayout(workspace, 90)
 
     def load_signal(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.wav *.flac *.ogg *.csv)")
@@ -373,6 +415,9 @@ class eCOOLizer(QMainWindow):
                 self.inputGraph.timer.start(self.inputGraph.playSpeed)
 
                 self.fourierGraph.set_signal(self.signal_output)
+
+                self.inputSpectrogram.display_spectrogram(self.signal_input)
+                self.outputSpectrogram.display_spectrogram(self.signal_output)
         
     def togglePlayPause(self):
         if self.is_playing:
@@ -435,23 +480,20 @@ class eCOOLizer(QMainWindow):
 
         self.inputGraph.set_signal(self.signal_input)
         self.outputGraph.timer.start(self.outputGraph.playSpeed)
-        
+        self.outputSpectrogram.display_spectrogram(self.signal_output)
+        self.outputSpectrogram.repaint()
+        self.outputSpectrogram.adjust_layout()
         self.switch_mode()
 
+    
     def hideShowSpectogram(self):
-        is_visible = not self.spectrogram_display.isVisible()
-        self.spectrogram_display.setVisible(is_visible)
+        is_visible = not self.inputSpectrogram.isVisible()
+        self.inputSpectrogram.toggle_visibility(is_visible)
+        self.outputSpectrogram.toggle_visibility(is_visible)
 
-        if is_visible:
-            print("Spectrogram displayed")
-            if self.inputGraph.signal:
-                self.spectrogram_display.display_spectrogram(self.inputGraph.signal)
-            self.splitter.setSizes([500, 300])  # Adjust sizes
-        else:
-            print("Spectrogram hidden")
-            self.splitter.setSizes([800, 0])  # Hide spectrogram
+        self.inputSplitter.setSizes([700, 0] if not is_visible else [500, 300])
 
-        self.splitter.updateGeometry()
+        self.outputSplitter.setSizes([700, 0] if not is_visible else [500, 300])
 
     def toggleScale(self):
         self.fourierGraph.toggle_audiogram_mode()
