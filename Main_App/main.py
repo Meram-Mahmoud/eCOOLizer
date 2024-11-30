@@ -63,8 +63,8 @@ class eCOOLizer(QMainWindow):
         self.audioLoadedName = QLabel("Need AudioName.mp3")
         self.uploadButton = QPushButton("Upload")
 
-        self.playPauseButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/play.png"), "")
-        self.resetButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/reset.png"), "")
+        self.playPauseButton = QPushButton(QIcon("Main_App/Assets/play.png"), "")
+        self.resetButton = QPushButton(QIcon("Main_App/Assets/reset.png"), "")
        
         self.toggleSpectogram=QPushButton("Spectogram")
         self.toggleAudiogram=QPushButton("audigram")
@@ -72,7 +72,7 @@ class eCOOLizer(QMainWindow):
         self.originalModeRadio = QRadioButton("Original")
         self.modifiedModeRadio = QRadioButton("Modified")
         self.originalModeRadio.setChecked(True)
-        self.playAudio = QPushButton(QIcon("eCOOLizer/Main_App/Assets/pause audio.png"), "")
+        self.playAudio = QPushButton(QIcon("Main_App/Assets/pause audio.png"), "")
 
         # self.inputGraph = PlotWidget()
         self.inputGraph = CineGraph("Input Graph")
@@ -89,10 +89,10 @@ class eCOOLizer(QMainWindow):
         self.fourierGraph=FourierTransformGraph("Fourier Graph")
 
         self.buttonsGroup = QWidget()
-        self.defaultModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/DefaultSelected.png"),"")
-        self.musicModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Music.png"),"")
-        self.animalModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
+        self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
+        self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
+        self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
+        self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
 
         self.sliderPanel = self.createSliderPanel("default")
         # print("UI elements Created")
@@ -141,7 +141,7 @@ class eCOOLizer(QMainWindow):
                 # ranges.append([[ind*100+1000, (ind+1)*100+1000]])
                 center_frequency = ind * 100 + 1000  # Calculate the center frequency
                 names.append(f"{center_frequency} HZ")  # Append name
-                ranges.append([[center_frequency - 10, center_frequency + 10]])
+                ranges.append([[center_frequency - 50, center_frequency + 50]])
             return self.contorls(names, ranges, 8700)
 
         elif mode == "animal":
@@ -259,27 +259,27 @@ class eCOOLizer(QMainWindow):
         if button != self.currentMode:
             match button:
                 case self.defaultModeButton:
-                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/DefaultSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
                     self.updateSliderPanel("default")  # Change the number of sliders for Default mode
                 case self.musicModeButton:
-                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/MusicSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
                     self.updateSliderPanel("music")  # Change the number of sliders for Music mode
                 case self.animalModeButton:
-                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/AnimalSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
                     self.updateSliderPanel("animal")  # Change the number of sliders for Animal mode
                 case self.ecgModeButton:
-                    button.setIcon(QIcon("eCOOLizer/Main_App/Assets/EcgSelected.png"))
+                    button.setIcon(QIcon("Main_App/Assets/EcgSelected.png"))
                     self.updateSliderPanel("ecg")  # Change the number of sliders for ECG mode
 
             match self.currentMode:
                 case self.defaultModeButton:
-                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Default.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Default.png"))
                 case self.musicModeButton:
-                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Music.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Music.png"))
                 case self.animalModeButton:
-                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Animal.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Animal.png"))
                 case self.ecgModeButton:
-                    self.currentMode.setIcon(QIcon("eCOOLizer/Main_App/Assets/Ecg.png"))
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Ecg.png"))
 
             self.currentMode.setIconSize(button.sizeHint())
             button.setIconSize(button.sizeHint() * 1.5)
@@ -376,7 +376,7 @@ class eCOOLizer(QMainWindow):
         
     def togglePlayPause(self):
         if self.is_playing:
-            self.playPauseButton.setIcon(QIcon("eCOOLizer/Main_App/Assets/pause.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/pause.png"))
             self.is_playing = False
             print("Playback paused") 
             
@@ -384,7 +384,7 @@ class eCOOLizer(QMainWindow):
             self.outputGraph.pause()
 
         else:
-            self.playPauseButton.setIcon(QIcon("eCOOLizer/Main_App/Assets/play.png"))
+            self.playPauseButton.setIcon(QIcon("Main_App/Assets/play.png"))
             self.is_playing = True
             print("Playback started")
             
@@ -414,10 +414,10 @@ class eCOOLizer(QMainWindow):
             if signal is not None:
                 signal.play_audio() 
                 if not self.audio_playing:
-                    self.playAudio.setIcon(QIcon("eCOOLizer/Main_App/Assets/play audio.png"))  
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
                     self.audio_playing = True
                 else:
-                    self.playAudio.setIcon(QIcon("eCOOLizer/Main_App/Assets/pause audio.png"))  
+                    self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
                     self.audio_playing = False
             else:
                 print("No audio signal loaded.")
