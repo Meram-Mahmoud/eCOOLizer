@@ -141,7 +141,7 @@ class eCOOLizer(QMainWindow):
                 # ranges.append([[ind*100+1000, (ind+1)*100+1000]])
                 center_frequency = ind * 100 + 1000  # Calculate the center frequency
                 names.append(f"{center_frequency} HZ")  # Append name
-                ranges.append([[center_frequency - 50, center_frequency + 50]])
+                ranges.append([[center_frequency - 10, center_frequency + 10]])
             return self.contorls(names, ranges, 8700)
 
         elif mode == "animal":
