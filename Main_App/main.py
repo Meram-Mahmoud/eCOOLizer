@@ -73,7 +73,8 @@ class eCOOLizer(QMainWindow):
         self.originalModeRadio = QRadioButton("Original")
         self.modifiedModeRadio = QRadioButton("Modified")
         self.originalModeRadio.setChecked(True)
-        self.playAudio = QPushButton(QIcon("Main_App/Assets/pause audio.png"), "")
+        # self.playAudio = QPushButton(QIcon("Main_App/Assets/pause audio.png"), "")
+        self.playAudio = QPushButton(QIcon("Main_App/Assets/play audio.png"), "")
 
         # self.inputGraph = PlotWidget()
         self.inputGraph = CineGraph("Input Graph")
@@ -157,16 +158,27 @@ class eCOOLizer(QMainWindow):
             # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
             # names = ["Guitar", "Flute", "xylophone", "drums"]
             # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
-   
+            # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
+            # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
+
+            # names = ["Triangle", "Drum"]
+            # ranges = [[[3000, 15000]], [[0, 12000]]]
+            # return self.contorls(names, ranges, 3900)
+
             names = ["Guitar", "Flute", "xylophone", "Harmonica"]
-            ranges = [[[0, 170]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
+            # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
+            ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
+
+        
             # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
             return self.contorls(names, ranges, 1870)
+        
+           
 
         elif mode == "ecg":
             names = ["Normal","Aflutter","Afib","Bradycardia"]
-            ranges=[[[0.5,20]],[[59,62]],[[59,62]],[[75,96]]]
-            return self.contorls(names, ranges)
+            ranges=[[[0.5,20]],[[59,62]],[[59,62]],[[6000,7000]]]
+            return self.contorls(names, ranges,-150)
 
     def plotDummyData(self):
         if not hasattr(self, 'time'):
@@ -397,6 +409,8 @@ class eCOOLizer(QMainWindow):
                 self.inputGraph.clear()
                 self.outputGraph.clear()
                 self.inputGraph.timer.start(self.inputGraph.playSpeed)
+                self.inputSpectrogram.display_spectrogram(self.signal_input)
+                self.outputSpectrogram.display_spectrogram(self.signal_output)
 
                 self.fourierGraph.set_signal(self.signal_output)
                 print("ALLO mel main class (loading csv)")
@@ -459,10 +473,10 @@ class eCOOLizer(QMainWindow):
             if signal is not None:
                 signal.play_audio() 
                 if not self.audio_playing:
-                    self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
+                    # self.playAudio.setIcon(QIcon("Main_App/Assets/play audio.png"))  
                     self.audio_playing = True
                 else:
-                    self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
+                    # self.playAudio.setIcon(QIcon("Main_App/Assets/pause audio.png"))  
                     self.audio_playing = False
             else:
                 print("No audio signal loaded.")

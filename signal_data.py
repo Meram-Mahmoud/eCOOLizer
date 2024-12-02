@@ -8,10 +8,15 @@ class Signal:
     def __init__(self, file_path="sounds/workedfiles/extended_uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
         self.data = None  
-        self.sample_rate = None  # Sampling rate of the audio file
+        self.sample_rate = 1000  # Sampling rate of the audio file
         self.file_path = file_path
         self.playing=False
         self.load_signal(file_path)
+        # file_extension = os.path.splitext(file_path)[-1].lower()  # Get the file extension in lowercase
+        # if file_extension == '.csv':
+        #     self.load_signal_from_csv(file_path)
+        # else:
+        #     self.load_signal(file_path)
         print("signal initialized")
 
     def load_signal(self, file_path):
