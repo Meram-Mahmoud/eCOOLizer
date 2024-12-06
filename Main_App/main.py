@@ -153,27 +153,40 @@ class eCOOLizer(QMainWindow):
             ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
             return self.contorls(names, ranges, 1000)
         
+        # elif mode == "music":
+        #     # names = ["guitar","piano","Triangle","trombone","Xylophone"]
+        #     # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
+        #     # names = ["Guitar", "Flute", "xylophone", "drums"]
+        #     # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
+        #     # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
+        #     # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
+
+        #     # names = ["Triangle", "Drum"]
+        #     # ranges = [[[3000, 15000]], [[0, 12000]]]
+        #     # return self.contorls(names, ranges, 3900)
+
+        #     names = ["Guitar", "Flute", "xylophone", "Harmonica"]
+        #     # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
+        #     ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
+
+        
+        #     # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
+        #     return self.contorls(names, ranges, 1870)
+        
         elif mode == "music":
-            # names = ["guitar","piano","Triangle","trombone","Xylophone"]
-            # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
-            # names = ["Guitar", "Flute", "xylophone", "drums"]
-            # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
-            # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
-            # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
-
-            # names = ["Triangle", "Drum"]
-            # ranges = [[[3000, 15000]], [[0, 12000]]]
-            # return self.contorls(names, ranges, 3900)
-
-            names = ["Guitar", "Flute", "xylophone", "Harmonica"]
-            # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
-            ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
-
+            #   OM kalthom
+            names = ["Clap"]
+            # ranges = [[[500, 2500]]]
+            ranges = [[[0, 14000]]]
         
-            # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
-            return self.contorls(names, ranges, 1870)
-        
-           
+            return self.contorls(names, ranges, 80)
+
+            # #Adele
+            # names = ["Clap"]
+            # # ranges = [[[500, 2500]]]
+            # ranges = [[[0, 1500]]]
+            # return self.contorls(names, ranges, 70)
+
 
         elif mode == "ecg":
             names = ["Normal","Aflutter","Afib","Bradycardia"]
