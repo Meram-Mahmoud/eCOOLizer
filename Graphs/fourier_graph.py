@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QPushButton, QFil
 from PyQt5.QtCore import Qt
 from .BaseGraph import GraphBase
 from signal_data import Signal
-from mainStyle import darkColor, yellowColor
+from Main_App.mainStyle import darkColor, yellowColor
 
 class FourierTransformGraph(GraphBase):
     def __init__(self, title="Fourier Transform"):

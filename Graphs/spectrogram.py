@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from mainStyle import darkColor, yellowColor
+from Main_App.mainStyle import darkColor, yellowColor
 
 class SpectrogramDisplay(QWidget):
     def __init__(self, parent=None):
