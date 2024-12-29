@@ -94,9 +94,9 @@ class eCOOLizer(QMainWindow):
 
         self.buttonsGroup = QWidget()
         self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
-        self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
+        self.weinerModeButton = QPushButton(QIcon("Main_App/Assets/weiner.png"),"")
         self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
+        self.vowelsModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
 
         self.sliderPanel = self.createSliderPanel("default")
         # print("UI elements Created")
@@ -146,22 +146,48 @@ class eCOOLizer(QMainWindow):
                 center_frequency = ind * 100 + 1000  # Calculate the center frequency
                 names.append(f"{center_frequency} HZ")  # Append name
                 ranges.append([[center_frequency - 10, center_frequency + 10]])
-            return self.contorls(names, ranges, 8700)
+            return self.contorls(names, ranges, 10000)
 
         elif mode == "animal":
-            # names = ["Cat", "Dog", "Bird", "Lion"]
-            # ranges = [[[0, 4000]], [[50, 2000]], [[1800, 2600]], [[0, 500]]]
-            names = ["Dog", "Wolve", "Crow", "Bat"]
-            ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
-            return self.contorls(names, ranges, 1000)
+            # names = ["Dog", "Wolve", "Crow", "Bat"]
+            # ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
+            # return self.contorls(names, ranges, 1000)
 
-        elif mode == "music":
-            #   OM kalthom
-            names = ["Clap"]
-            # ranges = [[[500, 2500]]]
-            ranges = [[[0, 14000]]]
+            #new sound
+            names = ["owl", "frog", "cricket", "sax","chimes"]
+            ranges = [[[100, 600]], [[601, 2500]], [[3000, 4600]],[[4600,8000]], [[8000, 160000]]]
+            return self.contorls(names, ranges, 500)
         
-            return self.contorls(names, ranges, 80)
+        # elif mode == "music":
+        #     # names = ["guitar","piano","Triangle","trombone","Xylophone"]
+        #     # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
+        #     # names = ["Guitar", "Flute", "xylophone", "drums"]
+        #     # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
+        #     # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
+        #     # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
+
+        #     # names = ["Triangle", "Drum"]
+        #     # ranges = [[[3000, 15000]], [[0, 12000]]]
+        #     # return self.contorls(names, ranges, 3900)
+
+        #     names = ["Guitar", "Flute", "xylophone", "Harmonica"]
+        #     # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
+        #     ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
+
+        
+        #     # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
+        #     return self.contorls(names, ranges, 1870)
+
+            # names = ["nature"]
+            # ranges = [[[1000, 22000]]]
+            # return self.contorls(names, ranges, 30)
+
+            #   OM kalthom
+            # names = ["Clap"]
+            # # ranges = [[[500, 2500]]]
+            # ranges = [[[0, 14000]]]
+        
+            # return self.contorls(names, ranges, 80)
 
             # #Adele
             # names = ["Clap"]
@@ -169,7 +195,7 @@ class eCOOLizer(QMainWindow):
             # ranges = [[[0, 1500]]]
             # return self.contorls(names, ranges, 70)
 
-        elif mode == "ecg":
+        elif mode == "wiener":
             # wiener_filter = Wiener()
             # sr = self.signal_input.sample_rate
             # time_domain_signal = self.signal_input.get_time_domain_data()
@@ -192,6 +218,73 @@ class eCOOLizer(QMainWindow):
             slider = WienerSlider(wiener_filter)
             slider.newSignalAndFourier.connect(self.handleSliderChange)
             return slider
+            
+        elif mode == "vowels":
+           #way down
+            # names = ["w"]
+            # ranges = [[[1000, 5000]]]
+            # return self.contorls(names, ranges, 300)
+
+            # #unchain my heart test 1 song 1-900 ch
+            # names = ["ch"]
+            # ranges = [[[900, 4000]]]
+            # return self.contorls(names, ranges, 400)
+            
+            # #unchain my heart test 2 song 500-2000 ch
+            # names = ["ch"]  
+            # ranges = [[[1, 500],[2000,4000]]]
+            # return self.contorls(names, ranges, 5000)
+        
+            # #unchain my heart test both 1 song 250-500 and 1000-2000
+            # names = ["ch","a"]  
+            # ranges = [[[1, 300],[2000,4000]],[[400,1500]]]
+            # return self.contorls(names, ranges, 6000)
+
+             #unchain my heart test both 2 song 700-2000 best one so far
+            # names = ["ch","a","bass","drums"]  
+            # ranges = [[[1, 700],[1800,6000]],[[400,800]],[[50,200]],[[400,1000]]]
+            # return self.contorls(names, ranges, 10000)
+
+            
+            #  #unchain my heart test both 2 song 700-2000 best one so far
+            # names = ["ch","a","drums","guitar"]  
+            # ranges = [[[1, 700],[1800,6000]],[[400,800]],[[200, 400],[5000,10000]],[[100, 600],[4000,5000]]]
+            # return self.contorls(names, ranges, 10000)
+
+            # #sky fall 1 ,1-400 and 3000-4000
+            # names = ["o","e"]  
+            # ranges = [[[100, 200],[400,1000]],[[200, 400],[1000,3000]]]
+            # return self.contorls(names, ranges, 10000)
+            
+            # # royal test 1 best one so far
+            # names = ["s","Drums","Clap"]  
+            # ranges = [[[3000, 12000]],[[100, 600]],[[1500, 2500]]]
+            # return self.contorls(names, ranges, 1500)
+
+            # # royal test 3
+            # names = ["s","e","Drums","Clap"]  
+            # ranges = [[[3000, 12000]],[[1, 50],[600,1400]],[[100, 600]],[[1500, 2500]]]
+            # return self.contorls(names, ranges, 1500)
+
+            # # royal test 4 best one so far good
+            # names = ["s","Triangle","Drums","Clap"]  
+            # ranges = [[[3000, 12000]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
+            # return self.contorls(names, ranges, 1500)
+
+            # # royal test 5 
+            # names = ["S","L","Triangle","Drums","Clap"]  
+            # ranges = [[[3000, 12000]],[[1,100]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
+            # return self.contorls(names, ranges, 1500)
+
+            #   # royal test 6 good still bugs 
+            # names = ["S","V","Triangle","Drums","Clap"]  
+            # ranges = [[[3000, 12000]],[[1,500]],[[12000,20000]],[[700, 1100]],[[1200, 3000]]]
+            # return self.contorls(names, ranges, 1500)
+
+              # royal test FINAL 
+            names = ["s","sh","Triangle","Drums","Clap"]  
+            ranges = [[[3500, 12000]],[[2500,6400]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
+            return self.contorls(names, ranges, 30000)
 
     def plotDummyData(self):
         if not hasattr(self, 'time'):
@@ -235,9 +328,9 @@ class eCOOLizer(QMainWindow):
         self.playPauseButton.clicked.connect(self.togglePlayPause)
         self.resetButton.clicked.connect(self.Reset)
         self.defaultModeButton.clicked.connect(self.changeMode)
-        self.musicModeButton.clicked.connect(self.changeMode)
+        self.weinerModeButton.clicked.connect(self.changeMode)
         self.animalModeButton.clicked.connect(self.changeMode)
-        self.ecgModeButton.clicked.connect(self.changeMode)
+        self.vowelsModeButton.clicked.connect(self.changeMode)
         self.uploadButton.clicked.connect(self.load_signal)
         self.speedSlider.valueChanged.connect(self.changePlottingSpeed)
         self.playAudio.clicked.connect(self.toggle_audio_playback)
@@ -280,11 +373,11 @@ class eCOOLizer(QMainWindow):
         self.animalModeButton.setIconSize(QSize(buttonSize, buttonSize))
         self.animalModeButton.setStyleSheet(buttonStyle)
 
-        self.musicModeButton.setIconSize(QSize(buttonSize, buttonSize))
-        self.musicModeButton.setStyleSheet(buttonStyle)
+        self.weinerModeButton.setIconSize(QSize(buttonSize, buttonSize))
+        self.weinerModeButton.setStyleSheet(buttonStyle)
 
-        self.ecgModeButton.setIconSize(QSize(buttonSize, buttonSize))
-        self.ecgModeButton.setStyleSheet(buttonStyle)
+        self.vowelsModeButton.setIconSize(QSize(buttonSize, buttonSize))
+        self.vowelsModeButton.setStyleSheet(buttonStyle)
 
         self.buttonsGroup.setStyleSheet(buttonsGroupStyle)
         self.buttonsGroup.setContentsMargins(10,0,10,0)
@@ -296,26 +389,26 @@ class eCOOLizer(QMainWindow):
             match button:
                 case self.defaultModeButton:
                     button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
-                    self.updateSliderPanel("default")  # Change the number of sliders for Default mode
-                case self.musicModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
-                    self.updateSliderPanel("music")  # Change the number of sliders for Music mode
+                    self.updateSliderPanel("default")  
+                case self.weinerModeButton:
+                    button.setIcon(QIcon("Main_App/Assets/weinerSelected.png"))
+                    self.updateSliderPanel("wiener")  
                 case self.animalModeButton:
                     button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
-                    self.updateSliderPanel("animal")  # Change the number of sliders for Animal mode
-                case self.ecgModeButton:
-                    button.setIcon(QIcon("Main_App/Assets/EcgSelected.png"))
-                    self.updateSliderPanel("ecg")  # Change the number of sliders for ECG mode
+                    self.updateSliderPanel("animal")  
+                case self.vowelsModeButton:
+                    button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
+                    self.updateSliderPanel("vowels")  
 
             match self.currentMode:
                 case self.defaultModeButton:
                     self.currentMode.setIcon(QIcon("Main_App/Assets/Default.png"))
-                case self.musicModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Music.png"))
+                case self.weinerModeButton:
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/weiner.png"))
                 case self.animalModeButton:
                     self.currentMode.setIcon(QIcon("Main_App/Assets/Animal.png"))
-                case self.ecgModeButton:
-                    self.currentMode.setIcon(QIcon("Main_App/Assets/Ecg.png"))
+                case self.vowelsModeButton:
+                    self.currentMode.setIcon(QIcon("Main_App/Assets/Music.png"))
 
             self.currentMode.setIconSize(button.sizeHint())
             button.setIconSize(button.sizeHint() * 1.5)
@@ -385,8 +478,8 @@ class eCOOLizer(QMainWindow):
         modesLayout = QHBoxLayout(self.buttonsGroup)
         modesLayout.addWidget(self.defaultModeButton)
         modesLayout.addWidget(self.animalModeButton)
-        modesLayout.addWidget(self.musicModeButton)
-        modesLayout.addWidget(self.ecgModeButton)
+        modesLayout.addWidget(self.weinerModeButton)
+        modesLayout.addWidget(self.vowelsModeButton)
 
         modesRowLayout.addStretch(20)
         modesRowLayout.addWidget(self.buttonsGroup, 20)

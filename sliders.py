@@ -97,7 +97,34 @@ class Slider(QWidget):
     
 
 
-
+    def modify_frequency_magnitude_wiener(self, target_freq, noise_reduction_factor):
+        """
+        Apply Wiener filter to specific frequency ranges
+        
+        Parameters:
+        - target_freq: list of frequency ranges [[start1, end1], [start2, end2], ...]
+        - noise_reduction_factor: slider value controlling noise reduction strength
+        """
+        if self.signal is None:
+            return
+            
+        # Convert slider value (-5 to 5) to noise reduction factor (0 to 2)
+        factor = (noise_reduction_factor + 5) / 5  # Now ranges from 0 to 2
+        
+        # Apply Wiener filter to each frequency range
+        filter_responses = []
+        for freq_range in target_freq:
+            response = self.signal.apply_wiener_filter(
+                freq_range=freq_range,
+                noise_reduction_factor=factor
+            )
+            filter_responses.append(response)
+            
+        # Get the updated signal data
+        frequency, magnitudes = self.signal.get_fft_data()
+        
+        # Emit the new signal
+        self.newSignalAndFourier.emit([frequency, magnitudes])
 
 
 
