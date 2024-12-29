@@ -4,6 +4,7 @@ import pandas as pd
 import sounddevice as sd
 from scipy.signal import spectrogram
 
+
 class Signal:
     def __init__(self, file_path="eCOOLizer/sounds/workedfiles/extended_uniform.wav"):
         # Inputs: file_path (str): Path to the audio file
@@ -266,7 +267,6 @@ class Signal:
         else:
             sd.stop()  # Stop if currently playing
             self.playing = False
-
 
 
 

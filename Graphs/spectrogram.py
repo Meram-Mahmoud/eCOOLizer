@@ -37,9 +37,35 @@ class SpectrogramDisplay(QWidget):
         #spectrogram_db (numpy array): Intensity values in dB, Shape: (chunks//2 + 1, number of windows).
         spectrogram_db = 20 * np.log10(spectrogram_data + 1e-6)
 
+        avg_power = np.mean(spectrogram_db, axis=1)
+        
+        # Find frequencies with significant energy (adjust threshold as needed)
+        threshold = np.max(avg_power) - 40  # Look at data within 40dB of max
+        significant_freqs = np.where(avg_power > threshold)[0]
+        
+        if len(significant_freqs) > 0:
+            # Get the frequency range with some padding
+            min_freq_idx = max(0, np.min(significant_freqs) - 5)
+            max_freq_idx = min(len(freqs) - 1, np.max(significant_freqs) + 5)
+            
+            y_min = freqs[min_freq_idx]
+            y_max = freqs[max_freq_idx]
+            
+            # Add a small padding (10% of the range)
+            freq_range = y_max - y_min
+            y_min = max(0, y_min - freq_range * 0.1)
+            y_max = y_max + freq_range * 0.1
+        else:
+            # Fallback if no significant frequencies found
+            y_min = 0
+            y_max = freqs[-1]
+        
         self.ax.clear()
         self.spectrogram_image = self.ax.imshow(spectrogram_db, aspect='auto', cmap=self.color_map,
                                                 extent=[times[0], times[-1], freqs[0], freqs[-1]], origin='lower')
+        
+        self.ax.set_ylim(y_min, y_max)
+        
         self.ax.set_xlabel("Time (s)", color=yellowColor)
         self.ax.set_ylabel("Frequency (Hz)", color=yellowColor)
 
