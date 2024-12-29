@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QDesktopWidget, Q
     QPushButton, QHBoxLayout,QSplitter
 from PyQt5.uic.properties import QtCore
 from pyqtgraph import PlotWidget, mkPen
+from wiener_slider import WienerSlider
 
 from mainStyle import mainStyle,logoStyle,audioNameStyle,buttonsGroupStyle,buttonStyle,importButton,sliderStyle,sliderLabelStyle,controlButtonStyle,speedSliderStyle,radioButtonStyle,splitterStyle
 from mainStyle import darkColor, yellowColor
@@ -19,6 +20,7 @@ from Graphs.fourier_graph import FourierTransformGraph
 from signal_data import Signal
 from sliders import Slider
 from Graphs.spectrogram import SpectrogramDisplay
+from wiener import Wiener
 
 class eCOOLizer(QMainWindow):
     def __init__(self):
@@ -94,7 +96,7 @@ class eCOOLizer(QMainWindow):
         self.defaultModeButton = QPushButton(QIcon("Main_App/Assets/DefaultSelected.png"),"")
         self.musicModeButton = QPushButton(QIcon("Main_App/Assets/Music.png"),"")
         self.animalModeButton = QPushButton(QIcon("Main_App/Assets/Animal.png"),"")
-        self.ecgModeButton = QPushButton(QIcon("Main_App/Assets/ECG.png"),"")
+        self.ecgModeButton = QPushButton(QIcon("eCOOLizer/Main_App/Assets/ECG.png"),"")
 
         self.sliderPanel = self.createSliderPanel("default")
         # print("UI elements Created")
@@ -152,27 +154,7 @@ class eCOOLizer(QMainWindow):
             names = ["Dog", "Wolve", "Crow", "Bat"]
             ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
             return self.contorls(names, ranges, 1000)
-        
-        # elif mode == "music":
-        #     # names = ["guitar","piano","Triangle","trombone","Xylophone"]
-        #     # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
-        #     # names = ["Guitar", "Flute", "xylophone", "drums"]
-        #     # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
-        #     # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
-        #     # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
 
-        #     # names = ["Triangle", "Drum"]
-        #     # ranges = [[[3000, 15000]], [[0, 12000]]]
-        #     # return self.contorls(names, ranges, 3900)
-
-        #     names = ["Guitar", "Flute", "xylophone", "Harmonica"]
-        #     # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
-        #     ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
-
-        
-        #     # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
-        #     return self.contorls(names, ranges, 1870)
-        
         elif mode == "music":
             #   OM kalthom
             names = ["Clap"]
@@ -187,11 +169,29 @@ class eCOOLizer(QMainWindow):
             # ranges = [[[0, 1500]]]
             # return self.contorls(names, ranges, 70)
 
-
         elif mode == "ecg":
-            names = ["Normal","Aflutter","Afib","Bradycardia"]
-            ranges=[[[0.5,20]],[[59,62]],[[59,62]],[[6000,7000]]]
-            return self.contorls(names, ranges,-150)
+            # wiener_filter = Wiener()
+            # sr = self.signal_input.sample_rate
+            # time_domain_signal = self.signal_input.get_time_domain_data()
+            # wiener_filter.set_signal(time_domain_signal[1], time_domain_signal[:30][1], sr)
+            # filtered_signal = wiener_filter.get_filtered_signal()
+            # self.handleSliderChange(filtered_signal)
+            # # print("input ", self.signal_input.get_time_domain_data()[1])
+            # # print("filtered ", wiener_filter.get_filtered_signal())
+            # Create Wiener filter instance
+            wiener_filter = Wiener()
+            # Get time domain data for input signal
+            time_domain_signal = self.signal_input.get_time_domain_data()
+            # Initialize Wiener filter with signal and noise
+            wiener_filter.set_signal(
+                time_domain_signal[1],  # Full signal
+                time_domain_signal[1][:300],  # First 30 samples as noise
+                self.signal_input.sample_rate
+            )
+            # Create slider widget
+            slider = WienerSlider(wiener_filter)
+            slider.newSignalAndFourier.connect(self.handleSliderChange)
+            return slider
 
     def plotDummyData(self):
         if not hasattr(self, 'time'):

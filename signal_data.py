@@ -17,7 +17,7 @@ class Signal:
         #     self.load_signal_from_csv(file_path)
         # else:
         #     self.load_signal(file_path)
-        print("signal initialized")
+        # print("signal initialized")
 
     def load_signal(self, file_path):
         # Inputs: file_path (str): Path to the audio file
@@ -35,7 +35,7 @@ class Signal:
         time_axis = np.linspace(0, num_samples / self.sample_rate, num=num_samples)
         
         self.data = np.column_stack((time_axis, self.data))
-        print(len(self.data[1]))
+        # print(len(self.data[1]))
 
         self.fft_data()
 
@@ -104,8 +104,9 @@ class Signal:
 
         if len(new_data[0]) != len(new_data[1]):
             raise ValueError("Time and amplitude arrays must be the same length.")
-
         self.data[:end_frame, 1] = new_data[1]
+
+        # self.data[:end_frame, 1] = new_data[1]
         # print(self.data)
 
     def fft_data(self, end_frame=None):

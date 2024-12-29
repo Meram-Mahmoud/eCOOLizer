@@ -88,7 +88,7 @@ class Slider(QWidget):
 
                 magnitudes[indices] = new_magnitude * self.constant + self.magnitudes[indices]
                 magnitudes[magnitudes < 0] = 0
-                print(magnitudes[indices], self.magnitudes[indices])
+                # print(magnitudes[indices], self.magnitudes[indices])
                 # print(f"Modified magnitudes at frequencies {frequency[indices]} Hz: {magnitudes[indices]}")
             else:
                 print("No frequencies found in the specified target range.")
