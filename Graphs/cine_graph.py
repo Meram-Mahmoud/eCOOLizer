@@ -11,8 +11,10 @@ from signal_data import Signal
 import sounddevice as sd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QFileDialog,QSlider,QSplitter
 from .spectrogram import SpectrogramDisplay
+from PyQt5.QtCore import pyqtSignal
 
 class CineGraph(GraphBase):
+    regionChanged = pyqtSignal(float, float)
     def __init__(self, title="Cine Viewer"):
         super().__init__(title)
         self.signal = None  
@@ -22,6 +24,9 @@ class CineGraph(GraphBase):
         self.timer.timeout.connect(self.update_plot)
         self.is_playing = False
         self.linked_graph = None
+        self.wiener_mode = False
+        self.selected_region = None
+        self.selected_signal_data = []
 
         self.spectrogram_visible = False
         self.splitter = QSplitter(Qt.Horizontal)
@@ -32,8 +37,8 @@ class CineGraph(GraphBase):
         self.spectrogram_display.setVisible(False)
 
         self.splitter.setStretchFactor(0, 3) 
-        # print("graph")
-        # print("graph")
+        self.plot_widget.scene().sigMouseClicked.connect(self.mouseClickEvent)
+       
 
     def set_signal(self, signal: Signal):
         # Inputs: signal (object)
@@ -108,6 +113,8 @@ class CineGraph(GraphBase):
             if self.current_frame >= len(self.signal.data):
                 self.timer.stop()
                 self.is_playing = False
+        if self.wiener_mode and self.selected_region:
+                self.plot_widget.addItem(self.selected_region)
 
 
     # def play(self):
@@ -155,62 +162,90 @@ class CineGraph(GraphBase):
         other.current_frame = self.current_frame
         self.current_frame=other.current_frame
        
-     # def update_plot(self):
-    #     if self.signal is None or not self.is_playing:
-    #         return
+    def set_weiner_mode(self, enabled):
+        self.wiener_mode = enabled
+        if not enabled and self.selected_region:
+            self.plot_widget.removeItem(self.selected_region)
+            self.selected_region = None
+            self.selected_signal_data = []
+    
+    def mouseClickEvent(self, event):
+        if self.wiener_mode and self.plot_widget.sceneBoundingRect().contains(event.scenePos()):
+            pass
 
-    #     elapsed_seconds = self.total_elapsed_time
-    #     if self.elapsed_timer.isValid():
-    #         elapsed_seconds += self.elapsed_timer.elapsed() / 1000.0 
+    def mouseDoubleClickEvent(self, event):
+        if self.wiener_mode:
+            scene_pos = self.plot_widget.mapToScene(event.pos())
+            if self.plot_widget.sceneBoundingRect().contains(scene_pos):
+                if self.selected_region is None:
+                    self.region_rectangle()
+                else:
+                    self.plot_widget.removeItem(self.selected_region)
+                    self.selected_region = None
+                    self.region_rectangle()
 
-    #     target_frame = int(elapsed_seconds * self.signal.sample_rate)
-
-    #     if target_frame > len(self.signal.data):
-    #         self.timer.stop()
-    #         self.is_playing = False
-    #         return
-
-    #     time_data, amplitude_data = self.signal.get_data(end_frame=target_frame)
-    #     self.plot_graph(time_data, amplitude_data, pen='b')
-    #     self.current_frame = target_frame  
-
-    # def play(self):
-    #     if not self.is_playing:
-    #         if not self.elapsed_timer.isValid():  
-    #             self.elapsed_timer.start()
-    #         else:
-    #             self.elapsed_timer.restart() 
-
-    #         sd.play(self.signal.data[self.current_frame:], self.signal.sample_rate, loop=False)
+    def region_rectangle(self):
+    
+        view_range = self.plot_widget.viewRange()[0]
+        
+        initial_min = view_range[0] + (view_range[1] - view_range[0]) * 0.25
+        initial_max = view_range[0] + (view_range[1] - view_range[0]) * 0.75
+        
+        self.selected_region = pg.LinearRegionItem(
+            values=[initial_min, initial_max],
+            movable=True,
+            bounds=view_range,
+            brush=pg.mkBrush(color=(100, 100, 255, 50))  
+        )
+        
+        self.selected_region.sigRegionChangeFinished.connect(self.handle_region_change)
+        
+        self.plot_widget.addItem(self.selected_region)
+    
+    def handle_region_change(self):
+    
+        time_min, time_max = self.selected_region.getRegion()
+    
+        if self.signal:
+            freq_resolution = self.signal.sample_rate / len(self.signal.data)
             
-    #         self.timer.start(self.playSpeed)
-    #         self.is_playing = True
-
-    # def pause(self):
-    #     if self.is_playing:
-    #         self.total_elapsed_time += self.elapsed_timer.elapsed() / 1000.0  
-    #         self.elapsed_timer.invalidate() 
+            freq_min = int(1 / time_max)  
+            freq_max = int(1 / time_min)  
             
-    #         sd.stop()
-    #         self.timer.stop()
-    #         self.is_playing = False
+            nyquist = self.signal.sample_rate // 2
+            freq_min = max(0, min(freq_min, nyquist))
+            freq_max = max(0, min(freq_max, nyquist))
+            
+            freq_range = self.get_selected_frequency_range()
 
-
-    # def reset(self):
-    #     sd.stop()
-    #     self.timer.stop()
-    #     self.is_playing = False
-
-    #     self.current_frame = 0
-    #     self.total_elapsed_time = 0
-    #     self.elapsed_timer.invalidate() 
-
-    #     self.clear()  
-    #     self.update_plot()
-
-    #     self.play()
-
-
+            if hasattr(self, 'regionChanged') and freq_range:
+                self.regionChanged.emit(*freq_range)
+            
+        return [freq_min, freq_max]
+    
+    def get_selected_frequency_range(self):
+        if self.wiener_mode and self.selected_region:
+            return self.handle_region_change()
+        return None
+    
+    def get_selected_data(self):
+        return self.selected_signal_data
+    
+    def get_visible_frame(self):
+        if self.signal is None:
+            return [], []
+        
+        x_range = self.plot_widget.viewRange()[0]
+        start_time, end_time = x_range
+        
+        start_frame = max(0, int(start_time * self.signal.sample_rate))
+        end_frame = min(len(self.signal.data), int(end_time * self.signal.sample_rate))
+        
+        time_data = np.arange(start_frame, end_frame) / self.signal.sample_rate
+        amplitude_data = self.signal.data[start_frame:end_frame]
+        
+        return [time_data], [amplitude_data]  
+    
    
 
 
