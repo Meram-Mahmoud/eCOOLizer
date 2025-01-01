@@ -54,8 +54,6 @@
         -Dynamically updated upon changes in slider.
     - **Audio Playback**:
         - Users can listen to the audio before and after modifications to compare changes.
-  
-  ![ ](Readme/unifrom mode.png)
 
  
 </p>
