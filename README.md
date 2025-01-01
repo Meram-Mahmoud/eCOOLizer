@@ -29,7 +29,7 @@
 - **Modes of Operation**: The application offers four modes of operation:
     - **Uniform Range Mode**:
         - Divides the total frequency range into 10 equal ranges, each controlled by a slider.
-    ![ ](Readme/unifrom mode.png)
+    ![ ](Readme/unifrom-mode.png)
 
     - **Instruments + Animals Mode**:
         - Control specific Instruments as sax, chimes.
