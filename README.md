@@ -111,6 +111,9 @@ To run the project locally, follow these steps:
    numpy
    matplotlib
    pandas
+   Scipy
+   soundfile
+   sounddevice
    ```
 
 5. **Run the application:**
