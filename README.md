@@ -70,6 +70,9 @@ The following tools were used in the construction of the project:
 - **[NumPy](https://numpy.org/)**
 - **[Matplotlib](https://matplotlib.org/)**
 - **[Pandas](https://pandas.pydata.org/)**
+- **[Scipy](https://scipy.org/)**
+- **[soundfile](https://pypi.org/project/soundfile/)**
+- **[sounddevice](https://pypi.org/project/sounddevice/)**
 
 ---
 
