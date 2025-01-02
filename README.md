@@ -29,6 +29,7 @@
 - **Modes of Operation**: The application offers four modes of operation:
     - **Uniform Range Mode**:
         - Divides the total frequency range into 10 equal ranges, each controlled by a slider.
+          
     ![ ](Readme/unifrom-mode.png)
 
     - **Instruments + Animals Mode**:
@@ -40,6 +41,7 @@
         
     - **Weiner Filter**:
         - Select a portion of the signal to suppress noise by making the selected part reduced or disappear.
+          
     ![ ](Readme/weiner.gif)
 
 
