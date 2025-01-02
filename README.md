@@ -54,6 +54,7 @@
         -Dynamically updated upon changes in slider.
     - **Audio Playback**:
         - Users can listen to the audio before and after modifications to compare changes.
+        ![ ](Readme/sound_before&after-animal+instrument.mp4)
 
  
 </p>
