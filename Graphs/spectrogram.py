@@ -24,9 +24,6 @@ class SpectrogramDisplay(QWidget):
         self.colorbar = None
 
     def display_spectrogram(self, signal):
-        # Inputs: signal (object)
-        # Outputs:
-        #Displays the spectrogram on the canvas.
        
         #Calculates the spectrogram data, converts it to dB scale, and plots it.
         if not signal:
@@ -56,7 +53,6 @@ class SpectrogramDisplay(QWidget):
             y_min = max(0, y_min - freq_range * 0.1)
             y_max = y_max + freq_range * 0.1
         else:
-            # Fallback if no significant frequencies found
             y_min = 0
             y_max = freqs[-1]
         

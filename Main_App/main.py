@@ -141,178 +141,68 @@ class eCOOLizer(QMainWindow):
         if mode == "default":  
             names, ranges = [], []  
             for ind in range(1,11):
-                # names.append(f"{ind*100+1000} HZ")
-                # ranges.append([[ind*100+1000, (ind+1)*100+1000]])
-                center_frequency = ind * 100 + 1000  # Calculate the center frequency
-                names.append(f"{center_frequency} HZ")  # Append name
+                center_frequency = ind * 100 + 1000  
+                names.append(f"{center_frequency} HZ")  
                 ranges.append([[center_frequency - 10, center_frequency + 10]])
             return self.contorls(names, ranges, 10000)
 
         elif mode == "animal":
+            #animals only
             # names = ["Dog", "Wolve", "Crow", "Bat"]
             # ranges = [[[0, 450]], [[450, 1100]], [[1100, 3000]], [[3000, 9000]]]
             # return self.contorls(names, ranges, 1000)
 
-            #new sound
+            #animals+instruments
             names = ["owl", "frog", "cricket", "sax","chimes"]
             ranges = [[[100, 600]], [[601, 2500]], [[3000, 4600]],[[4600,8000]], [[8000, 160000]]]
             return self.contorls(names, ranges, 500)
-        
-        # elif mode == "music":
-        #     # names = ["guitar","piano","Triangle","trombone","Xylophone"]
-        #     # ranges = [[[500,1200]],[[50,450]],[[4500,20000]],[[1000,4000]],[[300,1000]]]
-        #     # names = ["Guitar", "Flute", "xylophone", "drums"]
-        #     # ranges = [[[5096, 50956]], [[50957, 101913]], [[101914, 152869]], [[152870, 968176]]]
-        #     # names = ["Guitar", "Flute","Harmonica", "xylophone", ]
-        #     # ranges=[[[0, 170]], [[170, 250]], [[250, 400]], [[400, 1000]]]
-
-        #     # names = ["Triangle", "Drum"]
-        #     # ranges = [[[3000, 15000]], [[0, 12000]]]
-        #     # return self.contorls(names, ranges, 3900)
-
-        #     names = ["Guitar", "Flute", "xylophone", "Harmonica"]
-        #     # ranges = [[[0, 250]], [[170, 400]], [[150, 400],[2000,23000]], [[400, 4000]]]
-        #     ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
-
-        
-        #     # ranges = [[[0, 200],[10000,23000]], [[170, 350],[10000,23000]], [[250, 400],[2000,5000]], [[300, 2500],[5000,23000]]]
-        #     return self.contorls(names, ranges, 1870)
-
-            # names = ["nature"]
-            # ranges = [[[1000, 22000]]]
-            # return self.contorls(names, ranges, 30)
-
-            #   OM kalthom
-            # names = ["Clap"]
-            # # ranges = [[[500, 2500]]]
-            # ranges = [[[0, 14000]]]
-        
-            # return self.contorls(names, ranges, 80)
-
-            # #Adele
-            # names = ["Clap"]
-            # # ranges = [[[500, 2500]]]
-            # ranges = [[[0, 1500]]]
-            # return self.contorls(names, ranges, 70)
+      
 
         elif mode == "wiener":
-            # wiener_filter = Wiener()
-            # sr = self.signal_input.sample_rate
-            # time_domain_signal = self.signal_input.get_time_domain_data()
-            # wiener_filter.set_signal(time_domain_signal[1], time_domain_signal[:30][1], sr)
-            # filtered_signal = wiener_filter.get_filtered_signal()
-            # self.handleSliderChange(filtered_signal)
-            # # print("input ", self.signal_input.get_time_domain_data()[1])
-            # # print("filtered ", wiener_filter.get_filtered_signal())
-            # Create Wiener filter instance
-            wiener_filter = Wiener()
-            # Get time domain data for input signal
-            time_domain_signal = self.signal_input.get_time_domain_data()
-            # Initialize Wiener filter with signal and noise
-            wiener_filter.set_signal(
-                time_domain_signal[1],  # Full signal
-                time_domain_signal[1][:300],  # First 30 samples as noise
-                self.signal_input.sample_rate
-            )
-            # Create slider widget
-            slider = WienerSlider(wiener_filter)
-            slider.newSignalAndFourier.connect(self.handleSliderChange)
-            return slider
-            
-        elif mode == "vowels":
-           #way down
-            # names = ["w"]
-            # ranges = [[[1000, 5000]]]
-            # return self.contorls(names, ranges, 300)
-
-            # #unchain my heart test 1 song 1-900 ch
-            # names = ["ch"]
-            # ranges = [[[900, 4000]]]
-            # return self.contorls(names, ranges, 400)
-            
-            # #unchain my heart test 2 song 500-2000 ch
-            # names = ["ch"]  
-            # ranges = [[[1, 500],[2000,4000]]]
-            # return self.contorls(names, ranges, 5000)
+            freq_range = self.inputGraph.get_selected_frequency_range()
         
-            # #unchain my heart test both 1 song 250-500 and 1000-2000
-            # names = ["ch","a"]  
-            # ranges = [[[1, 300],[2000,4000]],[[400,1500]]]
-            # return self.contorls(names, ranges, 6000)
+            if freq_range:
+                freq_min, freq_max = freq_range
+                names = [f"Region {freq_min}-{freq_max}Hz"]
+                ranges = [[[freq_min, freq_max]]]
+            else:
+                names = ["Noise"]
+                ranges = [[[0, self.signal_input.sample_rate // 2]]]
+            
+            return self.contorls(names, ranges, 30)
+
+           
+
+        elif mode == "vowels":
+            
+              # royal test FINAL 
+            names = ["s","sh","Triangle","Drums","Clap"]  
+            ranges = [[[3500, 12000]],[[2500,6400]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
+            return self.contorls(names, ranges, 30000)
+        
 
              #unchain my heart test both 2 song 700-2000 best one so far
             # names = ["ch","a","bass","drums"]  
             # ranges = [[[1, 700],[1800,6000]],[[400,800]],[[50,200]],[[400,1000]]]
             # return self.contorls(names, ranges, 10000)
 
-            
-            #  #unchain my heart test both 2 song 700-2000 best one so far
-            # names = ["ch","a","drums","guitar"]  
-            # ranges = [[[1, 700],[1800,6000]],[[400,800]],[[200, 400],[5000,10000]],[[100, 600],[4000,5000]]]
-            # return self.contorls(names, ranges, 10000)
+            #instruments only
+            # names = ["Triangle", "Drum"]
+            # ranges = [[[3000, 15000]], [[0, 12000]]]
+            # return self.contorls(names, ranges, 3900)
 
-            # #sky fall 1 ,1-400 and 3000-4000
-            # names = ["o","e"]  
-            # ranges = [[[100, 200],[400,1000]],[[200, 400],[1000,3000]]]
-            # return self.contorls(names, ranges, 10000)
-            
-            # # royal test 1 best one so far
-            # names = ["s","Drums","Clap"]  
-            # ranges = [[[3000, 12000]],[[100, 600]],[[1500, 2500]]]
-            # return self.contorls(names, ranges, 1500)
+            # names = ["Guitar", "Flute", "xylophone", "Harmonica"]
+            # ranges = [[[0, 250]], [[170, 400]], [[3000,23000]], [[400, 4000]]]
 
-            # # royal test 3
-            # names = ["s","e","Drums","Clap"]  
-            # ranges = [[[3000, 12000]],[[1, 50],[600,1400]],[[100, 600]],[[1500, 2500]]]
-            # return self.contorls(names, ranges, 1500)
 
-            # # royal test 4 best one so far good
-            # names = ["s","Triangle","Drums","Clap"]  
-            # ranges = [[[3000, 12000]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
-            # return self.contorls(names, ranges, 1500)
+        
+         
+    def enable_weiner_mode(self):
+        self.inputGraph.set_weiner_mode(True)
+        self.inputGraph.regionChanged.connect(self.handle_region_change)
 
-            # # royal test 5 
-            # names = ["S","L","Triangle","Drums","Clap"]  
-            # ranges = [[[3000, 12000]],[[1,100]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
-            # return self.contorls(names, ranges, 1500)
-
-            #   # royal test 6 good still bugs 
-            # names = ["S","V","Triangle","Drums","Clap"]  
-            # ranges = [[[3000, 12000]],[[1,500]],[[12000,20000]],[[700, 1100]],[[1200, 3000]]]
-            # return self.contorls(names, ranges, 1500)
-
-              # royal test FINAL 
-            names = ["s","sh","Triangle","Drums","Clap"]  
-            ranges = [[[3500, 12000]],[[2500,6400]],[[12000,20000]],[[100, 600]],[[1200, 3000]]]
-            return self.contorls(names, ranges, 30000)
-
-    def plotDummyData(self):
-        if not hasattr(self, 'time'):
-            self.time = 0  # Initialize the time if it doesn't exist
-        t = np.linspace(self.time, self.time + 10, 1000)
-        amplitude = 1  # Amplitude of the bell curve
-        mean = 5  # Center of the bell curve (in seconds)
-        std_dev = 1  # Standard deviation (width of the bell curve)
-
-        bell_curve = amplitude * np.exp(-0.5 * ((t - mean) / std_dev) ** 2)  # Gaussian function
-
-        # Apply small random variations for the equalizer-like effect
-        variation1 = bell_curve + 0.1 * np.random.normal(size=len(t))  # Variation for input
-        variation2 = bell_curve + 0.2 * np.random.normal(size=len(t))  # Variation for output
-        variation3 = bell_curve  # Pure bell curve for Fourier graph
-
-        # Clear the previous plot
-        self.inputGraph.clear()
-        self.outputGraph.clear()
-        self.fourierGraph.clear()
-
-        # Plot the updated data
-        self.inputGraph.plot(t, variation1, pen=mkPen(color=yellowColor, width=2))
-        self.outputGraph.plot(t, variation2, pen=mkPen(color=yellowColor, width=2))
-        self.fourierGraph.plot(t, variation3, pen=mkPen(color=yellowColor, width=2))
-
-        # Update the time for the next plot
-        self.time += 0.1  # Increment the time to simulate real-time progression
+    def handle_region_change(self, min_x, max_x):
+        print(f"Selected region: {min_x:.2f} to {max_x:.2f}")
 
     def createSpectrograms(self):
         self.inputSpectrogram = SpectrogramDisplay()
@@ -390,15 +280,19 @@ class eCOOLizer(QMainWindow):
                 case self.defaultModeButton:
                     button.setIcon(QIcon("Main_App/Assets/DefaultSelected.png"))
                     self.updateSliderPanel("default")  
+                    self.inputGraph.set_weiner_mode(False)
                 case self.weinerModeButton:
                     button.setIcon(QIcon("Main_App/Assets/weinerSelected.png"))
-                    self.updateSliderPanel("wiener")  
+                    self.updateSliderPanel("wiener") 
+                    self.inputGraph.set_weiner_mode(True) 
                 case self.animalModeButton:
                     button.setIcon(QIcon("Main_App/Assets/AnimalSelected.png"))
-                    self.updateSliderPanel("animal")  
+                    self.updateSliderPanel("animal")
+                    self.inputGraph.set_weiner_mode(False)  
                 case self.vowelsModeButton:
                     button.setIcon(QIcon("Main_App/Assets/MusicSelected.png"))
                     self.updateSliderPanel("vowels")  
+                    self.inputGraph.set_weiner_mode(False)
 
             match self.currentMode:
                 case self.defaultModeButton:
